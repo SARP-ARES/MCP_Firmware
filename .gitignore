@@ -1,6 +1,7 @@
 .build
 .mbed
-mbed-os
-BUILD
 projectfiles
 *.py*
+mbed-os
+BUILD
+
