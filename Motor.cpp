@@ -2,6 +2,7 @@
 #include <string>
 #include "Motor.h"
 #include <math.h>
+#include "PID.h"
 
 
 void Motor::updateGlobals() {
@@ -54,8 +55,8 @@ void Motor::bFallCallback() {
 
 
 Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
-            PinName MOTOR_4) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
-            motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4) {
+            PinName MOTOR_4, const PID& pidObject) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
+            motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4), motorPID(pidObject) {
 
     // Init pins and set pin modes for encoders
     encoderA.mode(PullDown);
@@ -159,4 +160,6 @@ int Motor::getDegrees() {
 long Motor::getDisplacement() {
     updateGlobals();
     return angle * spoolDiameter * PI / 360;
+        motorPower(power);
+
 }

@@ -5,22 +5,31 @@
 #include "EUSBSerial.h"
 
 Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14); // test bench
-// Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9);
-DigitalIn encoder_pin_a(PA_8);
 
-// Motor angles
-float theta1 = 0;
-float theta2 = 0;
+size_t bufferSize = 8;
 
-// PID pid(0.017, 0.00006, 3);
-PID pid(0.017, 0, 1); // pretty fast and accurate to ~10 degrees
-// 
-
-// TODO: void toDegrees
+int leftExtension = 0;
+int rightExtension = 0;
 
 // main() runs in its own thread in the OS
 int main()
 {
+
+
+    PID pid(0.017, 0, 1);
+    Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
+    // Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9); // I think this is the mcpb
+
+
+    I2CSerial ser(PB_7, PB_8, 0x32, true);
+    
+     
+    // on stm with breakout: PB_7 PB_8
+    Distributor distributor(ser, bufferSize);
+
+
+
+
 
     // EUSBSerial pc(true); // New class Extended USB serial 
     printf("start :)\n");
@@ -29,16 +38,15 @@ int main()
 
     while (true) {
         ThisThread::sleep_for(10ms);
+        // get distributed pair
+        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
+        // get left float
+        leftExtension = spoolExtensions.first;
+        // get right float
+        rightExtension = spoolExtensions.second;
 
-        float displacement = motor.getDisplacement();
-        printf("Displacement: %d\t", (int)displacement);
-
-
-        float power = pid.compute(displacement, 4, 10);
-        printf("Power %d% \n", (int)(power*100));
-
-        motor.motorPower(power);
-
+        // go to position
+        motor.lineTo(4, 10);
     }
 }
 

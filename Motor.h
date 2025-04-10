@@ -4,6 +4,7 @@
 
 
 #include "mbed.h"
+#include "PID.h"
 
 class Motor {
     private:
@@ -36,12 +37,15 @@ class Motor {
         float rotations;
         bool powerPositive;
 
+        PID motorPID;
+
+
         void aRiseCallback();
         void bRiseCallback();
         void aFallCallback();
         void bFallCallback();
 
-    
+
     public:
 
         void updateGlobals();
@@ -50,7 +54,7 @@ class Motor {
         
 
         Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
-                 PinName MOTOR_4);
+                PinName MOTOR_4, const PID& pidObject);
 
         void motorPower(float power);
 
@@ -59,6 +63,9 @@ class Motor {
         int getDegrees();
 
         long getDisplacement();
+
+        void lineTo(float inches, int delay);
+        
 };
 
 #endif //_MOTOR_H_
