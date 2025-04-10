@@ -5,17 +5,15 @@
 
 
 #include "mbed.h"
-#include <cstddef>
-#include <iostream>
-#include <utility>
+#include "I2CSerial.h"
 
 class Distributor {
     private:
-        I2CSerial ser;
+        I2CSerial* ser;
         size_t bufferSize;
 
     public:
-        Distributor(I2CSerial ser, int bufferSize);
+        Distributor(I2CSerial* ser, size_t bufferSize);
 
         std::pair<float, float> getMotorOutputs();
 };
