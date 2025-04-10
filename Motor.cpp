@@ -78,7 +78,6 @@ Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, Pin
     encoderB.rise([this]() {bRiseCallback();});
     encoderB.fall([this]() {bFallCallback();});
 
-
 }
 
 void Motor::motorPower(float power) {
@@ -160,6 +159,11 @@ int Motor::getDegrees() {
 long Motor::getDisplacement() {
     updateGlobals();
     return angle * spoolDiameter * PI / 360;
+}
+
+void Motor::lineTo(float inches, int delay) {
+        float displacement = getDisplacement();
+        float power = motorPID.compute(displacement, inches, delay);
         motorPower(power);
 
 }

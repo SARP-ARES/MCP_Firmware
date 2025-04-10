@@ -4,7 +4,6 @@
 #include "PID.h"
 #include "EUSBSerial.h"
 
-Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14); // test bench
 
 size_t bufferSize = 8;
 
