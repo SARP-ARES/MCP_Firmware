@@ -7,13 +7,14 @@
 #include "mbed.h"
 #include "I2CSerial.h"
 
+#define DISTRIBUTOR_BUFFER_SIZE 8
+
 class Distributor {
     private:
         I2CSerial* ser;
-        size_t bufferSize;
 
     public:
-        Distributor(I2CSerial* ser, size_t bufferSize);
+        Distributor(I2CSerial* ser);
 
         std::pair<float, float> getMotorOutputs();
 };

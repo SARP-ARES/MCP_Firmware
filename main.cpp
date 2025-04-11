@@ -7,8 +7,6 @@
 #include "Distributor.h"
 
 
-size_t bufferSize = 8;
-
 int leftExtension = 0;
 int rightExtension = 0;
 
@@ -27,7 +25,7 @@ int main()
     I2CSerial ser(PB_7, PB_8, 0x32, true);
     
     
-    Distributor distributor(&ser, bufferSize);
+    Distributor distributor(&ser);
 
 
         //  DEBUG  //
@@ -38,15 +36,13 @@ int main()
         ThisThread::sleep_for(10ms);
         // get distributed pair
         std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
-        // get left float
-        leftExtension = spoolExtensions.first;
-        // get right float
-        rightExtension = spoolExtensions.second;
+        // if the first float is a NAN, keep each extension value the same
+        leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
+        rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
 
         // go to position
         motor1.lineTo(leftExtension, 10);
         motor2.lineTo(rightExtension, 10);
-
     }
 }
 
