@@ -41,8 +41,9 @@ int main()
         rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
 
         // go to position
-        motor1.lineTo(leftExtension, 10);
-        motor2.lineTo(rightExtension, 10);
+        // motor1.lineTo(leftExtension, 10);
+        // motor2.lineTo(rightExtension, 10);
+        motor.lineTo(.5, 10);
     }
 }
 

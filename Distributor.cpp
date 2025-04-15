@@ -2,6 +2,8 @@
 #include <string>
 #include "Distributor.h"
 #include <cmath>
+#include "I2CSerial.h"
+
 
 
 Distributor::Distributor(I2CSerial* ser) : ser(ser) {}
