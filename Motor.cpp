@@ -81,7 +81,6 @@ Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, Pin
 }
 
 void Motor::motorPower(float power) {
-    printf("motor power\n");
     if (power > 0) {
         if (!powerPositive) {
                     motorPin1.write(0);

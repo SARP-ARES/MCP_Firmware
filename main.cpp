@@ -17,8 +17,8 @@ int main()
 {
     printf("main");
 
-    ////PID pid(0.017, 0, 1); // No idea if these values work
-    ////Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
+    PID pid(0.017, 0, 1); // No idea if these values work
+    Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
     //Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
     //Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
 
@@ -36,6 +36,7 @@ int main()
 
     while (true) {
         ThisThread::sleep_for(10ms);
+        /*              commented out for test bench */
         // // get distributed pair
         // std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
         // // if the first float is a NAN, keep each extension value the same
@@ -45,7 +46,6 @@ int main()
         // go to position
         // motor1.lineTo(leftExtension, 10);
         // motor2.lineTo(rightExtension, 10);
-        ///// motor.lineTo(.5, 10);
-        printf("test\n");
+        printf("main loop\n");
     }
 }
