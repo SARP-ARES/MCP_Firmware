@@ -19,11 +19,21 @@ std::pair<float, float> Distributor::getMotorOutputs()  {
     if (res != 1) {
         return std::make_pair(NAN, 1);
     }
-    
-    float ctrl = ( (float) ((int) buf) ) / 100.0;
-    
+
+
+    // Buf processing
+    int digit1 = 100*( buf[1] - '0' );
+    int digit2 = 10*( buf[2] - '0' );
+    int digit3 = buf[3] - '0';
+    int sum = digit1 + digit2 + digit3;
+    if (buf[0] == '-') {sum*=-1;} 
+
+    printf("Distributor turn angle: %d\n", sum);
+
+
+    float ctrl = ( (float) sum ) / 100.0;    
     float leftPull = 0.5 * (-ctrl) + 0.5;
     float rightPull = 0.5 * ctrl + 0.5;
 
-    return std::make_pair(leftPull, rightPull);
+    return std::make_pair(leftPull, rightPull);    
 }
