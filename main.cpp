@@ -8,8 +8,8 @@
 #include "Distributor.h"
 
 
-int leftExtension = 0;
-int rightExtension = 0;
+float leftExtension = 0;
+float rightExtension = 0;
 
 
 // main() runs in its own thread in the OS
@@ -28,14 +28,14 @@ int main()
 
 
     while (true) {
-        ThisThread::sleep_for(1000ms);
-        /*              commented out for test bench */
-        // get distributed pair
-        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
-        // if the first float is a NAN, keep each extension value the same
-        leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
-        rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
+        ThisThread::sleep_for(5000ms);
 
-        printf("Left: %d, Right: %d\n", (int) leftExtension*100, (int) rightExtension*100);
+        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
+        
+        // if the first float is a NAN, keep each extension value the same4
+        leftExtension = (isnan(spoolExtensions.first)) ? leftExtension : spoolExtensions.first;
+        rightExtension = (isnan(spoolExtensions.first)) ? rightExtension: spoolExtensions.second;
+
+        printf("Left: %d, Right: %d\n", (int) (leftExtension*100), (int) (rightExtension*100));
     }
 }

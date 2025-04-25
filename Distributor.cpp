@@ -9,24 +9,20 @@
 Distributor::Distributor() {}
 
 std::pair<float, float> Distributor::getMotorOutputs()  {
-    printf("get motor outputs: ");
 
-    char buf[DISTRIBUTOR_BUFFER_SIZE];
-    buf[0] = '5';
-    buf[1] = '0';
+    char buf[DISTRIBUTOR_BUFFER_SIZE] = {' ', '0', '7', '5'};
     
-    printf("%c\n", buf[0]);
+    int digit1 = 100*( buf[1] - '0' );
+    int digit2 = 10*( buf[2] - '0' );
+    int digit3 = buf[3] - '0';
+    int sum = digit1 + digit2 + digit3;
+    if (buf[0] == '-') {sum*=-1;} 
 
-    std::string numStr = std::string() + buf[0] + buf[1];
+    printf("Distributor turn angle: %d\n", sum);
 
 
-    printf("Both char as a string: %s\n", numStr.c_str());
-    printf("that str as an int: %d\n", (int) numStr.c_str());
-
-    // string bufString = buf[0] + buf[1] + buf[2] + buf[3];
-
-    float ctrl = ( (float) ((int) numStr.c_str()) ) / 100.0;
-    printf("ctrl: %d\n", (int)ctrl*100);
+    float ctrl = ( (float) sum ) / 100.0;
+    // printf("ctrl: %d\n", (int) (ctrl*100));
     
     float leftPull = 0.5 * (-ctrl) + 0.5;
     float rightPull = 0.5 * ctrl + 0.5;
