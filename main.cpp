@@ -18,9 +18,9 @@ int main()
     printf("main\n");
 
     PID pid(0.017, 0, 1); // No idea if these values work
-    Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
-    //Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
-    //Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
+
+    Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
+    Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
     
     
     // Now with no input!
@@ -28,7 +28,7 @@ int main()
 
 
     while (true) {
-        ThisThread::sleep_for(5000ms);
+        ThisThread::sleep_for(10ms);
 
         std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
         
@@ -36,6 +36,7 @@ int main()
         leftExtension = (isnan(spoolExtensions.first)) ? leftExtension : spoolExtensions.first;
         rightExtension = (isnan(spoolExtensions.first)) ? rightExtension: spoolExtensions.second;
 
-        printf("Left: %d, Right: %d\n", (int) (leftExtension*100), (int) (rightExtension*100));
+        motor1.lineTo(leftExtension, 10);
+        motor2.lineTo(rightExtension, 10);
     }
 }
