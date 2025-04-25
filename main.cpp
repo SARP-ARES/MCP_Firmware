@@ -15,7 +15,7 @@ int rightExtension = 0;
 // main() runs in its own thread in the OS
 int main()
 {
-    printf("main");
+    printf("main\n");
 
     PID pid(0.017, 0, 1); // No idea if these values work
     Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
