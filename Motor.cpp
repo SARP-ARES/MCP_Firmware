@@ -55,8 +55,10 @@ void Motor::bFallCallback() {
 
 
 Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
-            PinName MOTOR_4, const PID& pidObject) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
-            motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4), motorPID(pidObject) {
+            PinName MOTOR_4, PID* pidObject) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
+            motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4) {
+
+    motorPID = pidObject;
 
     // Init pins and set pin modes for encoders
     encoderA.mode(PullDown);
@@ -163,6 +165,6 @@ long Motor::getDisplacement() {
 void Motor::lineTo(float retraction, int delay) {
         float inches = MAX_DEFLECTION * retraction;
         float displacement = getDisplacement();
-        float power = motorPID.compute(displacement, inches, delay);
+        float power = motorPID->compute(displacement, inches, delay);
         motorPower(power);
 }
