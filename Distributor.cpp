@@ -10,7 +10,7 @@ Distributor::Distributor() {}
 
 std::pair<float, float> Distributor::getMotorOutputs()  {
 
-    char buf[DISTRIBUTOR_BUFFER_SIZE] = {' ', '0', '7', '5'};
+    char buf[DISTRIBUTOR_BUFFER_SIZE] = {' ', '0', '0', '0'};
     
     int digit1 = 100*( buf[1] - '0' );
     int digit2 = 10*( buf[2] - '0' );
