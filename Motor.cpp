@@ -82,13 +82,18 @@ Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, Pin
 
 }
 
+int Motor::getEncoderA() {
+    updateGlobals();
+    return encoderA.read();
+}
+
 void Motor::motorPower(float power) {
     if (power > 0) {
         if (!powerPositive) {
-                    motorPin1.write(0);
-        motorPin2.write(0);
-        motorPin3.write(0);
-        motorPin4.write(0);
+            motorPin1.write(0);
+            motorPin2.write(0);
+            motorPin3.write(0);
+            motorPin4.write(0);
 
             ThisThread::sleep_for(2ms);
         }
@@ -98,10 +103,10 @@ void Motor::motorPower(float power) {
         motorPin4.write(power);
     } else if (power < 0) {
         if (powerPositive) {
-                    motorPin1.write(0);
-        motorPin2.write(0);
-        motorPin3.write(0);
-        motorPin4.write(0);
+            motorPin1.write(0);
+            motorPin2.write(0);
+            motorPin3.write(0);
+            motorPin4.write(0);
 
             ThisThread::sleep_for(2ms);
         }
@@ -166,5 +171,5 @@ void Motor::lineTo(float retraction, int delay) {
         float inches = MAX_DEFLECTION * retraction;
         float displacement = getDisplacement();
         float power = motorPID->compute(displacement, inches, delay);
-        motorPower(power);
+        motorPower(retraction);
 }

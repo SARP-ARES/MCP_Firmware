@@ -17,9 +17,6 @@
         "overrides": {
             "lse_available": 1
         },
-        "device_has_add": [
-            "USBDEVICE"
-        ],
         "bootloader_supported": true,
         "detect_code": [
             "0740"

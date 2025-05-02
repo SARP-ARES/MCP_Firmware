@@ -18,6 +18,8 @@ class Motor {
         PwmOut motorPin4;
         InterruptIn encoderA;
         InterruptIn encoderB;
+        DigitalOut led1(PC_14);
+
 
         // Encoder state boolean
         bool aUp = false;
@@ -50,7 +52,7 @@ class Motor {
 
         void updateGlobals();
 
-
+        int getEncoderA();
         
 
         Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
