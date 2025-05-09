@@ -37,7 +37,7 @@ class Motor {
         float rotations;
         bool powerPositive;
 
-        PID motorPID;
+        PID* motorPID;
 
 
         void aRiseCallback();
@@ -54,7 +54,7 @@ class Motor {
         
 
         Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
-                PinName MOTOR_4, const PID& pidObject);
+                PinName MOTOR_4, PID* pidObject);
 
         void motorPower(float power);
 
