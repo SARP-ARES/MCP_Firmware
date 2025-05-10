@@ -1,48 +1,26 @@
 #include "mbed.h"
-#include <string>
-#include "I2CSerial.h"
 
-#include "Motor.h"
-#include "PID.h"
-#include "Distributor.h"
+int main() {
+    DigitalOut led(PC_13);
+    DigitalOut led_ext(PB_0);
+    DigitalOut motor1(PA_0);
+    DigitalOut motor2(PA_1);
 
+    bool m1 = true;
+    bool m2 = false;
 
-int leftExtension = 0;
-int rightExtension = 0;
+    while (1) {
+        // ThisThread::sleep_for(500ms);
+        led = !led;
+        led_ext = !led_ext;
+        motor1.write(0);
+        motor2.write(0);
+        ThisThread::sleep_for(50ms);
+        motor1.write(m1);
+        motor2.write(m2);
+        m1 = !m1;
+        m2 = !m2;
+        ThisThread::sleep_for(2s);
 
-
-// main() runs in its own thread in the OS
-int main()
-{
-
-    PID pid(0.017, 0, 1); // No idea if these values work
-    // Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
-    // Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
-    // Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
-
-
-    // on stm with breakout: PB_7 PB_8
-    I2CSerial ser(PB_7, PB_8, 0x32, true);
-    
-    
-    Distributor distributor(&ser);
-
-
-        //  DEBUG  //
-    // printf("start :)\n");
-    // DigitalOut led1(PC_14);
-
-    while (true) {
-        ThisThread::sleep_for(10ms);
-        // get distributed pair
-        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs();
-        // if the first float is a NAN, keep each extension value the same
-        leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
-        rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
-
-        // go to position
-        motor1.lineTo(leftExtension, 10);
-        motor2.lineTo(rightExtension, 10);
     }
 }
-
