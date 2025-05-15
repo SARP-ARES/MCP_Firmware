@@ -1,24 +1,76 @@
 #include "mbed.h"
 #include "MotorCOTS.h"
+#include "EUSBSerial.h"
+#include "PID.h"
+
 
 int main() {
-    DigitalOut led(PC_13);
-    DigitalOut led_ext(PB_0);
+    // DigitalOut led(PC_13);
+    DigitalOut led_ext(PB_8);
+    PID pid(4, 0.1, 2);
+    EUSBSerial pc;
+    ThisThread::sleep_for(1s);
+    pc.printf("\nSerial Port Connected!\n");
 
-    // direction 1, direction 2, throttle, encoder a, b
-    MotorCOTS motor(PB_8, PB_9, PA_1, PA_8, PA_9);
+    // direction 1, direction 2, throttle, encoder a, encoder b
 
-    bool m1 = true;
-    bool m2 = false;
+    // // ollie motor
+    // MotorCOTS motor(PB_8, PB_9, PA_1, PA_8, PA_9);
 
-    float power = 0;
-    while (1) {
-        // ThisThread::sleep_for(500ms);
-        led = !led;
-        led_ext = !led_ext;
-        ThisThread::sleep_for(5s);
-        power += 0.25;
-        if (power > 1) {power -= 1;}
-        motor.motorPower(power);
+    // jimmy motor:
+    MotorCOTS motor(PA_2, PA_3, PB_1, PA_6, PA_7);
+
+    float dt = 0.1;
+    Timer t;
+    t.start();
+
+    float degrees = 0;
+    float current_angle = 0;
+    float target_angle = 2000; // degrees
+    pc.printf("Target Angle: %f\n\n", target_angle);
+    ThisThread::sleep_for(3s);
+
+    // float power = 0;
+    while (true) {
+        ThisThread::sleep_for(10ms);
+        current_angle = motor.getDegrees();
+        float power = pid.compute(current_angle, target_angle, dt);
+
+        if (power < 0.1 && power > -0.1) { // saturation/deadzone
+            motor.motorPower(0);
+        } else {
+            motor.motorPower(power);
+        }
+        
+        pc.printf("Current Angle: %f\n", current_angle);
+        pc.printf("Motor Power: %f\n\n", power);
+
+        // // NOT USING PWM SO JUST TURN TF OFF
+        // if (power < 0) {
+        //     motor.motorPower(0);
+        //     break;
+        // }
+
+
+        // motor.direction(1);
+        // led_ext.write(1);
+        // for (int i=0; i<50; i++) { // 50 x 100ms = 5s
+        //     degrees = motor.getDegrees();
+        //     pc.printf("Direction: 1\n");
+        //     pc.printf("Degrees: %f\n\n", degrees);
+        //     ThisThread::sleep_for(100ms);
+        // }
+
+        // motor.direction(-1);
+        // led_ext.write(0);
+        // for (int i=0; i<50; i++) {
+        //     degrees = motor.getDegrees();
+        //     pc.printf("Direction: 2\n");
+        //     pc.printf("Degrees: %f\n\n", degrees);
+        //     ThisThread::sleep_for(100ms);
+        // }
+        
+
+
     }
 }
