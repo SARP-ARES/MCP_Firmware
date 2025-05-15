@@ -1,14 +1,14 @@
 #include "mbed.h"
-#include "Motor.h"
+#include "MotorCOTS.h"
 
-void Motor::updateGlobals() {
+void MotorCOTS::updateGlobals() {
     position = encoderCounter;
     angle = (encoderCounter * 360.0) / totalCounts;
     rotations = angle / 360.0;
 
 }
 
-void Motor::aRiseCallback() {
+void MotorCOTS::aRiseCallback() {
     aUp = true;
 
     if (!bUp) {
@@ -19,7 +19,7 @@ void Motor::aRiseCallback() {
 }
 
 
-void Motor::bRiseCallback() {
+void MotorCOTS::bRiseCallback() {
     bUp = true;
 
     if (aUp) {
@@ -29,7 +29,7 @@ void Motor::bRiseCallback() {
     }
 }
 
-void Motor::aFallCallback() {
+void MotorCOTS::aFallCallback() {
     aUp = false;
 
     if (bUp) {
@@ -39,7 +39,7 @@ void Motor::aFallCallback() {
     }
 }
 
-void Motor::bFallCallback() {
+void MotorCOTS::bFallCallback() {
     bUp = false;
 
     if (!aUp) {
@@ -49,7 +49,7 @@ void Motor::bFallCallback() {
     }
 }
 
-Motor::Motor(PinName directionOne, PinNAme directionTwo, PinName powerThrottle, PinName encoderA, PinName encoderB) : encoderA(PIN_A), encoderB(PIN_B), 
+MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB) : encoderA(PINA), encoderB(PINB), 
                 directionOne(directionOne), directionTwo(directionTwo), powerThrottle(powerThrottle) {
 
     // Init pins and set pin modes for encoders
@@ -74,7 +74,7 @@ Motor::Motor(PinName directionOne, PinNAme directionTwo, PinName powerThrottle, 
 
 }
 
-void Motor::direction(int direction) {
+void MotorCOTS::direction(int direction) {
     if (direction == 1) {
         ThisThread::sleep_for(2ms);
         directionTwo.write(0);
@@ -88,7 +88,7 @@ void Motor::direction(int direction) {
     }
 }
 
-void Motor::motorPower(float power) {
+void MotorCOTS::motorPower(float power) {
     if (power > 0) {
         direction(1);
         powerThrottle.write(power);
@@ -100,7 +100,7 @@ void Motor::motorPower(float power) {
     }
 }
 
-int Motor::getDegrees() {
+int MotorCOTS::getDegrees() {
     updateGlobals();
     return (int)angle;
 }

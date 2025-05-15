@@ -1,11 +1,11 @@
-#ifndef _MOTOR_H_
-#define _MOTOR_H_
+#ifndef _MOTORCOTS_H_
+#define _MOTORCOTS_H_
 
 
 #include "mbed.h"
 #include "PID.h"
 
-class Motor {
+class MotorCOTS {
     private:
         DigitalOut directionOne;
         DigitalOut directionTwo;
@@ -43,7 +43,7 @@ class Motor {
 
         
 
-        Motor(PinName directionOne, PinNAme directionTwo, PinName powerThrottle, PinName encoderA, PinName encoderB);
+        MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB);
 
         void direction(int direction);
         void motorPower(float power);
@@ -51,4 +51,4 @@ class Motor {
         int getDegrees();
 };
 
-#endif //_MOTOR_H_
+#endif //_MOTORCOTS_H_

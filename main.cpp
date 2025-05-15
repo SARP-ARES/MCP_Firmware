@@ -1,11 +1,12 @@
 #include "mbed.h"
+#include "MotorCOTS.h"
 
 int main() {
     DigitalOut led(PC_13);
     DigitalOut led_ext(PB_0);
-    PwmOut motorPower(PA_1);
-    DigitalOut motorIn1(PA_6);
-    DigitalOut motorIn2(PA_5);
+
+    // direction 1, direction 2, throttle, encoder a, b
+    MotorCOTS motor(PB_8, PB_9, PA_1, PA_8, PA_9);
 
     motorIn1.write(1);
     motorIn2.write(0);
