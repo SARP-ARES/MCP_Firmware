@@ -8,10 +8,6 @@ int main() {
     // direction 1, direction 2, throttle, encoder a, b
     MotorCOTS motor(PB_8, PB_9, PA_1, PA_8, PA_9);
 
-    motorIn1.write(1);
-    motorIn2.write(0);
-    motorPower.write(0.5);
-
     bool m1 = true;
     bool m2 = false;
 
@@ -20,9 +16,9 @@ int main() {
         // ThisThread::sleep_for(500ms);
         led = !led;
         led_ext = !led_ext;
-        ThisThread::sleep_for(2s);
+        ThisThread::sleep_for(5s);
         power += 0.25;
         if (power > 1) {power -= 1;}
-        motorPower.write(power);
+        motor.motorPower(power);
     }
 }
