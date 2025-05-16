@@ -49,8 +49,8 @@ void MotorCOTS::bFallCallback() {
     }
 }
 
-MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB) : encoderA(PINA), encoderB(PINB), 
-                directionOne(directionOne), directionTwo(directionTwo), powerThrottle(powerThrottle) {
+MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid) : encoderA(PINA), encoderB(PINB), 
+                directionOne(directionOne), directionTwo(directionTwo), powerThrottle(powerThrottle), pid(pid) {
 
     // Init pins and set pin modes for encoders
     encoderA.mode(PullDown);

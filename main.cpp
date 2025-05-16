@@ -5,8 +5,8 @@
 
 
 int main() {
-    // DigitalOut led(PC_13);
-    DigitalOut led_ext(PB_8);
+    DigitalOut led(PB_0);
+    led.write(1);
     PID pid(4, 0.1, 2);
     EUSBSerial pc;
     ThisThread::sleep_for(1s);
@@ -15,14 +15,15 @@ int main() {
     // direction 1, direction 2, throttle, encoder a, encoder b
 
     // // ollie motor
-    // MotorCOTS motor(PB_8, PB_9, PA_1, PA_8, PA_9);
-
+    MotorCOTS motor(PB_8, PB_9, PA_1, PA_6, PA_7, &pid);
+    led.write(0);
     // jimmy motor:
-    MotorCOTS motor(PA_2, PA_3, PB_1, PA_6, PA_7);
+    // MotorCOTS motor(PA_2, PA_3, PB_1, PA_6, PA_7);
 
     float dt = 0.1;
     Timer t;
     t.start();
+
 
     float degrees = 0;
     float current_angle = 0;
@@ -39,7 +40,7 @@ int main() {
         if (power < 0.1 && power > -0.1) { // saturation/deadzone
             motor.motorPower(0);
         } else {
-            motor.motorPower(power);
+            motor.motorPower(-power);
         }
         
         pc.printf("Current Angle: %f\n", current_angle);

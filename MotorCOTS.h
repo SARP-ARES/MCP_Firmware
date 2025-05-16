@@ -36,6 +36,8 @@ class MotorCOTS {
         void aFallCallback();
         void bFallCallback();
 
+        PID* pid;
+
     public:
 
         void updateGlobals();
@@ -43,7 +45,7 @@ class MotorCOTS {
 
         
 
-        MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB);
+        MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid);
 
         void direction(int direction);
         void motorPower(float power);
