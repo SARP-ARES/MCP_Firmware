@@ -4,6 +4,8 @@
 
 #include "mbed.h"
 #include "PID.h"
+#include "EUSBSerial.h"
+
 
 class MotorCOTS {
     private:
@@ -37,6 +39,7 @@ class MotorCOTS {
         void bFallCallback();
 
         PID* pid;
+        EUSBSerial* pc;
 
     public:
 
@@ -45,12 +48,15 @@ class MotorCOTS {
 
         
 
-        MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid);
+        // MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid);
+        MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid, EUSBSerial* pc);
 
         void direction(int direction);
         void motorPower(float power);
 
         int getDegrees();
+
+        void toPosition(int target, int dt);
 };
 
 #endif //_MOTORCOTS_H_

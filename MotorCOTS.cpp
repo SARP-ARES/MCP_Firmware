@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "MotorCOTS.h"
+#include "EUSBSerial.h"
 
 void MotorCOTS::updateGlobals() {
     position = encoderCounter;
@@ -49,8 +50,9 @@ void MotorCOTS::bFallCallback() {
     }
 }
 
-MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid) : encoderA(PINA), encoderB(PINB), 
-                directionOne(directionOne), directionTwo(directionTwo), powerThrottle(powerThrottle), pid(pid) {
+
+MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid, EUSBSerial* pc) : encoderA(PINA), encoderB(PINB), 
+                directionOne(directionOne), directionTwo(directionTwo), powerThrottle(powerThrottle), pid(pid), pc(pc) {
 
     // Init pins and set pin modes for encoders
     encoderA.mode(PullDown);
@@ -103,4 +105,17 @@ void MotorCOTS::motorPower(float power) {
 int MotorCOTS::getDegrees() {
     updateGlobals();
     return (int)angle;
+}
+
+void MotorCOTS::toPosition(int target, int dt) {
+    int curr = getDegrees();
+    float power = pid->compute(curr, target, dt);
+    if (curr-target < 10 && curr-target > -10) {
+        motorPower(0);
+    } else {
+        motorPower(-power);
+    }
+    pc->printf("Curr: %d\t", curr);
+    pc->printf("Target: %d\t", target);
+    pc->printf("Difference: %d\n", curr-target);
 }

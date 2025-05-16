@@ -7,7 +7,7 @@
 int main() {
     DigitalOut led(PB_0);
     led.write(1);
-    PID pid(4, 0.1, 2);
+    PID pid(0.06, 0, 10);
     EUSBSerial pc;
     ThisThread::sleep_for(1s);
     pc.printf("\nSerial Port Connected!\n");
@@ -15,7 +15,7 @@ int main() {
     // direction 1, direction 2, throttle, encoder a, encoder b
 
     // // ollie motor
-    MotorCOTS motor(PB_8, PB_9, PA_1, PA_6, PA_7, &pid);
+    MotorCOTS motor(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
     led.write(0);
     // jimmy motor:
     // MotorCOTS motor(PA_2, PA_3, PB_1, PA_6, PA_7);
@@ -27,24 +27,16 @@ int main() {
 
     float degrees = 0;
     float current_angle = 0;
-    float target_angle = 2000; // degrees
+    float target_angle = 720; // degrees
     pc.printf("Target Angle: %f\n\n", target_angle);
-    ThisThread::sleep_for(3s);
 
     // float power = 0;
     while (true) {
         ThisThread::sleep_for(10ms);
-        current_angle = motor.getDegrees();
-        float power = pid.compute(current_angle, target_angle, dt);
 
-        if (power < 0.1 && power > -0.1) { // saturation/deadzone
-            motor.motorPower(0);
-        } else {
-            motor.motorPower(-power);
-        }
+        motor.toPosition(target_angle, 8);
         
-        pc.printf("Current Angle: %f\n", current_angle);
-        pc.printf("Motor Power: %f\n\n", power);
+        pc.printf("Current Angle: %f\t", motor.getDegrees());
 
         // // NOT USING PWM SO JUST TURN TF OFF
         // if (power < 0) {

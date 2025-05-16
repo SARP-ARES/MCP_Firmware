@@ -21,7 +21,7 @@ float PID::compute(float currAngle, float targetAngle, float dt) {
     }
 
 
-    float P = -Kp * error; //Simply proportional to error
+    float P = -Kp * error;
     float I = -Ki * integralError;
     float D = -Kd * (error - errorLast) / dt;
     errorLast = error;
