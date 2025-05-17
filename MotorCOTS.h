@@ -25,7 +25,7 @@ class MotorCOTS {
         const int countsPerRev = 64;
         const float gearRatio = 150; // Might need to be updated for different motors
         const float spoolDiameter = 0.5; // Spool Diameter IN INCHES. Sidenote in realidad this will not be const
-        const float MAX_DEFLECTION = 36; // INCHES
+        const float MAX_DEFLECTION = 72; // INCHES
 
         const float totalCounts = countsPerRev * gearRatio; // Total counts per rotation of motor output shaft
         long position;
@@ -55,8 +55,9 @@ class MotorCOTS {
         void motorPower(float power);
 
         int getDegrees();
+        int getPosition();
 
-        void toPosition(int target, int dt);
+        void toPosition(float target, int dt);
 };
 
 #endif //_MOTORCOTS_H_
