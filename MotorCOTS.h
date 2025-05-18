@@ -55,7 +55,7 @@ class MotorCOTS {
         void motorPower(float power);
 
         int getDegrees();
-        int getPosition();
+        float getPosition();
 
         void toPosition(float target, int dt);
 };

@@ -107,22 +107,23 @@ int MotorCOTS::getDegrees() {
     return (int)angle;
 }
 
-int MotorCOTS::getPosition() {
-    return getDegrees() / 360 * PI * spoolDiameter;
+float MotorCOTS::getPosition() {
+    return static_cast<float>(getDegrees()) / 360.0 * PI * spoolDiameter;
 }
 
 void MotorCOTS::toPosition(float pullPercent, int dt) {
-    int currPos = getPosition();
-    int targetPos = pullPercent*MAX_DEFLECTION;
+    
+    float currPos = getPosition();
+    float targetPos = pullPercent*MAX_DEFLECTION;
 
     float power = pid->compute(currPos, targetPos, dt);
 
-    if (currPos-targetPos < 1 && currPos-targetPos > -1) {
+    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) {
         motorPower(0);
     } else {
         motorPower(-power);
     }
-    pc->printf("Curr: %d\t", currPos);
-    pc->printf("Target: %d\t", targetPos);
-    pc->printf("Difference: %d\n", currPos-targetPos);
+    pc->printf("Curr: %f\t", currPos);
+    pc->printf("Target: %f\t", targetPos);
+    pc->printf("Difference: %f\n", currPos-targetPos);
 }
