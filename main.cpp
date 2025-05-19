@@ -9,43 +9,46 @@ void fallCallback() {
 
 int main() {
 
-    DigitalOut led(PC_13);
-    DigitalOut led_ext(PB_8);
-    led.write(0);
-
-    DigitalOut motor1(PA_2);
-    DigitalOut motor2(PA_3);
-    InterruptIn encoderA(PA_6);
-    InterruptIn encoderB(PA_7);
-
     EUSBSerial pc(false);
-
     ThisThread::sleep_for(1s);
     pc.printf("Serial Port Connected!\n");
 
+    ThisThread::sleep_for(3s);
+    DigitalOut dir1(PB_8);
+    DigitalOut dir2(PB_9);
+    DigitalOut throttle(PA_1);
+    DigitalOut led(PC_13);
+    dir1.write(0);
+    dir2.write(0);
+    throttle.write(0);
+    led.write(1);
+    pc.printf("Pins are on.\n");
+
+    // DigitalOut motor1(PA_2);
+    // DigitalOut motor2(PA_3);
+    // InterruptIn encoderA(PA_6);
+    // InterruptIn encoderB(PA_7);
+
+    
+
     // attach callbacks to the interupts
-    encoderA.fall(fallCallback);
-    encoderB.fall(fallCallback);
+    // encoderA.fall(fallCallback);
+    // encoderB.fall(fallCallback);
 
-    // bool m1 = true;
-    // bool m2 = false;
 
-    // drive motor 
-    motor1.write(1);
-    motor2.write(0); 
     // ThisThread::sleep_for(500ms);
-    // pc.printf("Starting Main Loop!\n");
+    pc.printf("Starting Main Loop!\n");
     while (true) {
         ThisThread::sleep_for(100ms);
         // led_ext = !led_ext;
 
-        pc.printf("Encoder Count: %d\n", encoder_counter);
-        if (encoder_counter >= 150 * 64 * 5) { // 5 revolutions (150:1 gear ratio, 64 CPR)
-            led_ext.write(1);
-            pc.printf("Encoder Threshold Reached!\n");
-            motor1.write(0);
-            break;
-        } 
+        // pc.printf("Encoder Count: %d\n", encoder_counter);
+        // if (encoder_counter >= 150 * 64 * 5) { // 5 revolutions (150:1 gear ratio, 64 CPR)
+        //     led_ext.write(1);
+        //     pc.printf("Encoder Threshold Reached!\n");
+        //     motor1.write(0);
+        //     break;
+        // } 
 
 
         // led = !led;
