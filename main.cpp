@@ -2,6 +2,7 @@
 #include "MotorCOTS.h"
 #include "EUSBSerial.h"
 #include "PID.h"
+#include "Distributor.h"
 
 
 int main() {
@@ -25,48 +26,80 @@ int main() {
     Timer t;
     t.start();
 
+    Distributor dstb;
 
+
+    // not sure if we need this
     float degrees = 0;
     float current_angle = 0;
     float target_position = 0.1; // degrees
     pc.printf("Target Angle: %f\n\n", target_position);
 
-    // float power = 0;
+
+    std::pair<int, int> extensions;
+    int seconds = 30;
+
+
+    //      CONTROL SEQUENCE
+    
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(0, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(0, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+
+    extensions = dstb.getMotorOutputsManual(1);
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(extensions.first, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+    extensions = dstb.getMotorOutputsManual(0.5);
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(extensions.first, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+    extensions = dstb.getMotorOutputsManual(0);
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(extensions.first, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+    extensions = dstb.getMotorOutputsManual(-0.5);
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(extensions.first, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+    extensions = dstb.getMotorOutputsManual(-1);
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(extensions.first, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+    extensions = dstb.getMotorOutputsManual(1);
+    for (int i = 0; i < seconds*100; i++) {
+        motor1.toPosition(extensions.first, 10);
+        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+    }
+
+
     while (true) {
         ThisThread::sleep_for(10ms);
-
-        motor1.toPosition(target_position, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
-
-        motor2.toPosition(target_position, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
-
-        // // NOT USING PWM SO JUST TURN TF OFF
-        // if (power < 0) {
-        //     motor.motorPower(0);
-        //     break;
-        // }
-
-
-        // motor.direction(1);
-        // led_ext.write(1);
-        // for (int i=0; i<50; i++) { // 50 x 100ms = 5s
-        //     degrees = motor.getDegrees();
-        //     pc.printf("Direction: 1\n");
-        //     pc.printf("Degrees: %f\n\n", degrees);
-        //     ThisThread::sleep_for(100ms);
-        // }
-
-        // motor.direction(-1);
-        // led_ext.write(0);
-        // for (int i=0; i<50; i++) {
-        //     degrees = motor.getDegrees();
-        //     pc.printf("Direction: 2\n");
-        //     pc.printf("Degrees: %f\n\n", degrees);
-        //     ThisThread::sleep_for(100ms);
-        // }
-        
-
-
     }
 }
