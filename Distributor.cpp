@@ -5,6 +5,7 @@
 
 
 Distributor::Distributor(I2CSerial* ser) : ser(ser) {}
+Distributor::Distributor() {}
 
 std::pair<float, float> Distributor::getMotorOutputs()  {
     // Integer from -100 to 100
@@ -19,7 +20,10 @@ std::pair<float, float> Distributor::getMotorOutputs()  {
     }
     
     float ctrl = ( (float) ((int) buf) ) / 100.0;
-    
+    return getMotorOutputsManual(ctrl);
+}
+
+std::pair<float, float> Distributor::getMotorOutputsManual(float ctrl)  {
     float leftPull = 0.5 * (-ctrl) + 0.5;
     float rightPull = 0.5 * ctrl + 0.5;
 
