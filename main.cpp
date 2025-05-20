@@ -23,8 +23,6 @@ int main() {
     // MotorCOTS motor(PA_2, PA_3, PB_1, PA_6, PA_7);
 
     float dt = 0.1;
-    Timer t;
-    t.start();
 
     Distributor dstb;
 
@@ -36,70 +34,72 @@ int main() {
     pc.printf("Target Angle: %f\n\n", target_position);
 
 
-    std::pair<int, int> extensions;
+    std::pair<float, float> extensions;
     int seconds = 30;
 
 
     //      CONTROL SEQUENCE
     
-    for (int i = 0; i < seconds*100; i++) {
+    Timer t;
+    t.start();
+
+    while (t.read_ms() < 1000*seconds) {
         motor1.toPosition(0, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
         motor2.toPosition(0, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+        pc.printf("Loop 1\n");
+        ThisThread::sleep_for(10ms);
     }
 
-
+    t.reset();
     extensions = dstb.getMotorOutputsManual(1);
-    for (int i = 0; i < seconds*100; i++) {
+    while (t.read_ms() < 1000*seconds) {
         motor1.toPosition(extensions.first, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
         motor2.toPosition(extensions.second, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+        pc.printf("Loop 2\n");
+        ThisThread::sleep_for(10ms);
     }
 
     extensions = dstb.getMotorOutputsManual(0.5);
-    for (int i = 0; i < seconds*100; i++) {
+    t.reset();
+    while (t.read_ms() < 1000*seconds) {
         motor1.toPosition(extensions.first, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
         motor2.toPosition(extensions.second, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+        pc.printf("Loop 3\n");
+        ThisThread::sleep_for(10ms);
     }
 
     extensions = dstb.getMotorOutputsManual(0);
-    for (int i = 0; i < seconds*100; i++) {
+    t.reset();
+    while (t.read_ms() < 1000*seconds) {
         motor1.toPosition(extensions.first, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
         motor2.toPosition(extensions.second, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+        ThisThread::sleep_for(10ms);
+        pc.printf("Loop 4\n");
     }
 
     extensions = dstb.getMotorOutputsManual(-0.5);
-    for (int i = 0; i < seconds*100; i++) {
+    t.reset();
+    while (t.read_ms() < 1000*seconds) {
         motor1.toPosition(extensions.first, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
         motor2.toPosition(extensions.second, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+        pc.printf("Loop 5\n");
+        ThisThread::sleep_for(10ms);
     }
 
     extensions = dstb.getMotorOutputsManual(-1);
-    for (int i = 0; i < seconds*100; i++) {
+    t.reset();
+    while (t.read_ms() < 1000*seconds) {
         motor1.toPosition(extensions.first, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
         motor2.toPosition(extensions.second, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
+        pc.printf("Loop 6\n");
+        ThisThread::sleep_for(10ms);
     }
 
     extensions = dstb.getMotorOutputsManual(1);
-    for (int i = 0; i < seconds*100; i++) {
-        motor1.toPosition(extensions.first, 10);
-        pc.printf("Current Pos 1: %f\t", motor1.getPosition());
-        motor2.toPosition(extensions.second, 10);
-        pc.printf("Current Pos 2: %f\t", motor2.getPosition());
-    }
-
-
     while (true) {
+        motor1.toPosition(extensions.first, 10);
+        motor2.toPosition(extensions.second, 10);
+        pc.printf("Loop 7\n");
         ThisThread::sleep_for(10ms);
     }
 }
