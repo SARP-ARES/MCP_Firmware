@@ -44,6 +44,7 @@ int main() {
     t.start();
 
     while (t.read_ms() < 1000*seconds) {
+        pc.printf("State: full open");
         motor1.toPosition(0, 10);
         motor2.toPosition(0, 10);
         pc.printf("Loop 1\n");
@@ -53,6 +54,7 @@ int main() {
     t.reset();
     extensions = dstb.getMotorOutputsManual(1);
     while (t.read_ms() < 1000*seconds) {
+        pc.printf("State: 1");
         motor1.toPosition(extensions.first, 10);
         motor2.toPosition(extensions.second, 10);
         pc.printf("Loop 2\n");
@@ -62,6 +64,7 @@ int main() {
     extensions = dstb.getMotorOutputsManual(0.5);
     t.reset();
     while (t.read_ms() < 1000*seconds) {
+        pc.printf("State: 0.5");
         motor1.toPosition(extensions.first, 10);
         motor2.toPosition(extensions.second, 10);
         pc.printf("Loop 3\n");
@@ -71,6 +74,7 @@ int main() {
     extensions = dstb.getMotorOutputsManual(0);
     t.reset();
     while (t.read_ms() < 1000*seconds) {
+        pc.printf("State: 0");
         motor1.toPosition(extensions.first, 10);
         motor2.toPosition(extensions.second, 10);
         ThisThread::sleep_for(10ms);
@@ -80,6 +84,7 @@ int main() {
     extensions = dstb.getMotorOutputsManual(-0.5);
     t.reset();
     while (t.read_ms() < 1000*seconds) {
+        pc.printf("State: -0.5");
         motor1.toPosition(extensions.first, 10);
         motor2.toPosition(extensions.second, 10);
         pc.printf("Loop 5\n");
@@ -89,6 +94,7 @@ int main() {
     extensions = dstb.getMotorOutputsManual(-1);
     t.reset();
     while (t.read_ms() < 1000*seconds) {
+        pc.printf("State: -1");
         motor1.toPosition(extensions.first, 10);
         motor2.toPosition(extensions.second, 10);
         pc.printf("Loop 6\n");
@@ -97,6 +103,7 @@ int main() {
 
     extensions = dstb.getMotorOutputsManual(1);
     while (true) {
+        pc.printf("State: 1");
         motor1.toPosition(extensions.first, 10);
         motor2.toPosition(extensions.second, 10);
         pc.printf("Loop 7\n");

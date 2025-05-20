@@ -24,8 +24,8 @@ class MotorCOTS {
         volatile int encoderCounter = 0; // Counter for the encoder ticks
         const int countsPerRev = 64;
         const float gearRatio = 150; // Might need to be updated for different motors
-        const float spoolDiameter = 0.5; // Spool Diameter IN INCHES. Sidenote in realidad this will not be const
-        const float MAX_DEFLECTION = 72; // INCHES
+        const float spoolDiameter = 0.24; // Spool Diameter IN INCHES. Sidenote in realidad this will not be const
+        const float MAX_DEFLECTION = 10; // INCHES
 
         const float totalCounts = countsPerRev * gearRatio; // Total counts per rotation of motor output shaft
         long position;
