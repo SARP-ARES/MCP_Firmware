@@ -18,11 +18,12 @@ int main() {
     DigitalOut dir2(PB_9);
     DigitalOut throttle(PA_1);
     DigitalOut led(PC_13);
+
+    // set direction (constant)
     dir1.write(0);
-    dir2.write(0);
-    throttle.write(0);
-    led.write(1);
-    pc.printf("Pins are on.\n");
+    dir2.write(1);
+
+
 
     // DigitalOut motor1(PA_2);
     // DigitalOut motor2(PA_3);
@@ -39,7 +40,23 @@ int main() {
     // ThisThread::sleep_for(500ms);
     pc.printf("Starting Main Loop!\n");
     while (true) {
-        ThisThread::sleep_for(100ms);
+        // ThisThread::sleep_for(100ms);
+
+        ThisThread::sleep_for(3s);
+
+        // start motor
+        pc.printf("Motor On\n");
+        throttle.write(1);
+        led.write(0);
+
+        ThisThread::sleep_for(3s);
+
+        // stop motor
+        pc.printf("Motor Off\n");
+        throttle.write(0);
+        led.write(1);
+
+
         // led_ext = !led_ext;
 
         // pc.printf("Encoder Count: %d\n", encoder_counter);
