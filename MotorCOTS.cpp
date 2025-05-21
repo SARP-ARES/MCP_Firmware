@@ -123,7 +123,7 @@ void MotorCOTS::toPosition(float pullPercent, int dt) {
     } else {
         motorPower(-power);
     }
-    pc->printf("Curr: %f\t", currPos);
-    pc->printf("Target: %f\t", targetPos);
+    pc->printf("\t\tCurrent: %f", currPos);
+    pc->printf("\tTarget: %f", targetPos);
     // pc->printf("Difference: %f\t", currPos-targetPos);
 }
