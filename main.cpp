@@ -1,3 +1,4 @@
+#include "DigitalOut.h"
 #include "ThisThread.h"
 #include "mbed.h"
 #include "MotorCOTS.h"
@@ -37,11 +38,23 @@ void ctrl_manual(float cmd1, float cmd2, int seconds, MotorCOTS* motor1, MotorCO
 
 int main() {
     DigitalOut led(PC_13);
-    led.write(0);
-    PID pid(1, 0, 5);
     EUSBSerial pc;
     ThisThread::sleep_for(1s);
     pc.printf("\nSerial Port Connected!\n");
+    led.write(1);
+    DigitalIn ctrl_trigger(PB_7); // SDA1 (pulled high by default, trigger is low)
+
+    while(ctrl_trigger.read() == 1) {
+        ThisThread::sleep_for(10ms);
+    }
+    
+    pc.printf("\nTHE THING WAS TRIGGERED...\n STARTING CONTROL SEQUENCE...");
+    led.write(0);
+    PID pid(1, 0, 5);
+
+    ThisThread::sleep_for(10s);
+
+    
 
     // direction 1, direction 2, throttle, encoder a, encoder b
     MotorCOTS motor1(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
@@ -62,11 +75,15 @@ int main() {
 
     // CONTROL SEQUENCE:
     // ctrl(cmd1, cmd2, ...)
+    ctrl(0.25, 60, &motor1, &motor2, &dstb, &pc);
     ctrl(0.5, 60, &motor1, &motor2, &dstb, &pc);
+    ctrl(0.75, 60, &motor1, &motor2, &dstb, &pc);
     ctrl(1, 120, &motor1, &motor2, &dstb, &pc);
     ctrl(0, 60, &motor1, &motor2, &dstb, &pc);
     ctrl(-0.5, 60, &motor1, &motor2, &dstb, &pc);
     ctrl(-1, 60, &motor1, &motor2, &dstb, &pc);
-    ctrl(1, 999999999, &motor1, &motor2, &dstb, &pc);
+    while (true) {
+        ctrl(1, 3600, &motor1, &motor2, &dstb, &pc);
+    }
 
 }
