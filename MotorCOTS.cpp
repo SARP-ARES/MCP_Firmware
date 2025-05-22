@@ -123,7 +123,9 @@ void MotorCOTS::toPosition(float pullPercent, int dt) {
     } else {
         motorPower(-power);
     }
-    pc->printf("\t\tCurrent: %f", currPos);
-    pc->printf("\tTarget: %f", targetPos);
+    pc->printf("\t\tCurrent: %f\tTarget: %f", currPos, targetPos);
+    // pc->printf("\tTarget pull percent: %f", pullPercent);
+    // pc-printf("\tMax deflection: %f", MAX_DEFLECTION);
+
     // pc->printf("Difference: %f\t", currPos-targetPos);
 }
