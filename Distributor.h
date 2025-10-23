@@ -1,5 +1,5 @@
-// Class which translates a float input (from the flight controller) into two floats for each 
-// motors linear displacement
+// Class which translates a float inputs (ideally from the flight controller) into two floats 
+// for each motors linear displacement
 #ifndef _DISTRIBUTOR_H_
 #define _DISTRIBUTOR_H_
 

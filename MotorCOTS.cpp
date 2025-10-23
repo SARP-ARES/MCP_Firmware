@@ -2,13 +2,14 @@
 #include "MotorCOTS.h"
 #include "EUSBSerial.h"
 
+// Updates class variables for motor state
 void MotorCOTS::updateGlobals() {
     position = encoderCounter;
     angle = (encoderCounter * 360.0) / totalCounts;
     rotations = angle / 360.0;
-
 }
 
+// Tickes encoder count forward or backward on encoder a rise callback
 void MotorCOTS::aRiseCallback() {
     aUp = true;
 
@@ -19,7 +20,7 @@ void MotorCOTS::aRiseCallback() {
     }
 }
 
-
+// Tickes encoder count forward or backward on encoder b rise callback
 void MotorCOTS::bRiseCallback() {
     bUp = true;
 
@@ -30,6 +31,7 @@ void MotorCOTS::bRiseCallback() {
     }
 }
 
+// Tickes encoder count forward or backward on encoder a fall callback
 void MotorCOTS::aFallCallback() {
     aUp = false;
 
@@ -40,6 +42,7 @@ void MotorCOTS::aFallCallback() {
     }
 }
 
+// Tickes encoder count forward or backward on encoder b fall callback
 void MotorCOTS::bFallCallback() {
     bUp = false;
 
@@ -51,6 +54,9 @@ void MotorCOTS::bFallCallback() {
 }
 
 
+// Initialize motor object, set encoder states
+// Takes:  PinName for direction one control line, PinName for direction two control line, PinName for power throttle (PWM),
+//         PinName for encoder A, PinName for encoder B, PID pointer for motor PID controller, EUSBSerial pointer for debugging serial
 MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid, EUSBSerial* pc) : encoderA(PINA), encoderB(PINB), 
                 directionOne(directionOne), directionTwo(directionTwo), powerThrottle(powerThrottle), pid(pid), pc(pc) {
 
@@ -76,6 +82,9 @@ MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerTh
 
 }
 
+
+// Set motor direction
+// Takes:   int direction (1 for forward, -1 for backward)
 void MotorCOTS::direction(int direction) {
     if (direction == 1) {
         ThisThread::sleep_for(2ms);
@@ -90,6 +99,8 @@ void MotorCOTS::direction(int direction) {
     }
 }
 
+// Set motor power
+// Takes:   float power (0 to 1 for forward, 0 to -1 for backward)
 void MotorCOTS::motorPower(float power) {
     if (power > 0) {
         direction(1);
@@ -102,15 +113,19 @@ void MotorCOTS::motorPower(float power) {
     }
 }
 
+// Returns motor angle in degrees
 int MotorCOTS::getDegrees() {
     updateGlobals();
     return (int)angle;
 }
 
+// Returns motor linear position in inches
 float MotorCOTS::getPosition() {
     return static_cast<float>(getDegrees()) / 360.0 * PI * spoolDiameter;
 }
 
+// Moves motor to target position using PID controller
+// Takes:   float target position in inches, int dt in milliseconds since last call
 void MotorCOTS::toPosition(float pullPercent, int dt) {
     
     float currPos = getPosition();
@@ -123,9 +138,10 @@ void MotorCOTS::toPosition(float pullPercent, int dt) {
     } else {
         motorPower(-power);
     }
+
+    // Debug print statements 
     pc->printf("\t\tCurrent: %f\tTarget: %f", currPos, targetPos);
     // pc->printf("\tTarget pull percent: %f", pullPercent);
     // pc-printf("\tMax deflection: %f", MAX_DEFLECTION);
-
     // pc->printf("Difference: %f\t", currPos-targetPos);
 }

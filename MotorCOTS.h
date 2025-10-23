@@ -1,3 +1,5 @@
+// Class which controls a COTS motor with encoder feedback
+
 #ifndef _MOTORCOTS_H_
 #define _MOTORCOTS_H_
 
