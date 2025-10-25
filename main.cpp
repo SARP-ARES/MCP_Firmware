@@ -55,20 +55,23 @@ int main() {
     // Object init
     PID pid(1, 0, 5);
     // Direction 1, direction 2, throttle, encoder a, encoder b
-    MotorCOTS motor1(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
-    MotorCOTS motor2(PA_10, PA_9, PA_8, PA_15, PB_3, &pid, &pc);
+    // MotorCOTS motor1(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
+    // MotorCOTS motor2(PA_10, PA_9, PA_8, PA_15, PB_3, &pid, &pc);
+    //New Driver board pinout
+    MotorCOTS motor1(PA_6, PA_5, PA_7, PC_15, PA_1, &pid, &pc);
+    MotorCOTS motor2(PA_4, PA_3, PA_2, PB_9, PC_14, &pid, &pc);
     Distributor dstb;
     std::pair<float, float> extensions;
 
 
 
-    // Control Trigger
-    DigitalIn ctrl_trigger(PB_7); // SDA1 (pulled high by default, trigger is low)
-    while(ctrl_trigger.read() == 1) {
-        ThisThread::sleep_for(10ms);
-    }
-    pc.printf("\nTHE THING WAS TRIGGERED...\n STARTING CONTROL SEQUENCE...");
-    led.write(0);
+    // // Control Trigger
+    // DigitalIn ctrl_trigger(PB_7); // SDA1 (pulled high by default, trigger is low)
+    // while(ctrl_trigger.read() == 1) {
+    //     ThisThread::sleep_for(10ms);
+    // }
+    // pc.printf("\nTHE THING WAS TRIGGERED...\n STARTING CONTROL SEQUENCE...");
+    // led.write(0);
 
 
 
