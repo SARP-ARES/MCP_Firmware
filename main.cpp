@@ -57,9 +57,9 @@ int main() {
     // Direction 1, direction 2, throttle, encoder a, encoder b
     // MotorCOTS motor1(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
     // MotorCOTS motor2(PA_10, PA_9, PA_8, PA_15, PB_3, &pid, &pc);
-    //New Driver board pinout
-    MotorCOTS motor1(PA_6, PA_5, PA_7, PC_15, PA_1, &pid, &pc);
-    MotorCOTS motor2(PA_4, PA_3, PA_2, PB_9, PC_14, &pid, &pc);
+    // New Driver board pinout
+    MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); //motor A
+    MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); //motor B
     Distributor dstb;
     std::pair<float, float> extensions;
 
