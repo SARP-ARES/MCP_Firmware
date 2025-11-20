@@ -161,9 +161,10 @@ long Motor::getDisplacement() {
     return angle * spoolDiameter * PI / 360;
 }
 
-void Motor::lineTo(float retraction, int delay) {
+float Motor::lineTo(float retraction, int delay) {
         float inches = MAX_DEFLECTION * retraction;
         float displacement = getDisplacement();
         float power = motorPID.compute(displacement, inches, delay);
         motorPower(power);
+        return(power);
 }
