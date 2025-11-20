@@ -20,10 +20,10 @@ void scanI2C() {
   } 
 }
 
-int main() {
-    while (true) {
-        pc.printf("Hello World!\n");
-        scanI2C();
-        ThisThread::sleep_for(500ms);
-    }
-}
+// int main() {
+//     while (true) {
+//         pc.printf("Hello World!\n");
+//         scanI2C();
+//         ThisThread::sleep_for(500ms);
+//     }
+// }

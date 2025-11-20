@@ -27,6 +27,10 @@ struct {
     float rightPower;
 } motorPacket;
 
+int receivedWrite1 = 0;
+int receivedWrite_not1 = 0;
+int sentReadReqs = 0;
+
 void update_struct(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
     ScopedLock<Mutex> lock(mutex);
     motorPacket.leftDegrees = leftDegrees;
@@ -48,17 +52,19 @@ int i2c_handler(void) {
 
             case I2CSlave::WriteAddressed: {
                 int err = slave.read(i2c_rx_buf, sizeof(float));
-                mutex.lock();
                 memcpy(&f, i2c_rx_buf, sizeof(float));
-                mutex.unlock();
+                if (f == 1) {
+                    receivedWrite1++;
+                } else {
+                    receivedWrite_not1++;
+                }
                 break;
             }
 
             case I2CSlave::ReadAddressed: {
-                mutex.lock();
                 memcpy(&motorPacket, i2c_tx_buf, sizeof(motorPacket));
-                mutex.unlock();
                 slave.write(i2c_tx_buf, sizeof(motorPacket));
+
                 break;
             }
 
@@ -78,13 +84,8 @@ int main()
     Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
     Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
     Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
-
-
-    // on stm with breakout: PB_7 PB_8
-    I2CSerial ser(PB_7, PB_8, 0x32, true);
     
-    
-    Distributor distributor(&ser);
+    // Distributor distributor(&ser);
 
     i2cThread.start(i2c_handler);
 
@@ -93,23 +94,32 @@ int main()
     // printf("start :)\n");
     // DigitalOut led1(PC_14);
 
-    while (true) {
-        ThisThread::sleep_for(10ms);
-        // get distributed pair
-        mutex.lock();
-        float ctrl = f;
-        mutex.unlock();
-        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(ctrl);
+    // while (true) {
+    //     ThisThread::sleep_for(10ms);
+    //     // get distributed pair
+    //     mutex.lock();
+    //     float ctrl = f;
+    //     mutex.unlock();
+    //     std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(ctrl);
         
-        // if the first float is a NAN, keep each extension value the same
-        leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
-        rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
+    //     // if the first float is a NAN, keep each extension value the same
+    //     leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
+    //     rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
 
-        // go to position
-        float power1 = motor1.lineTo(leftExtension, 10);
-        float power2 = motor2.lineTo(rightExtension, 10);
+    //     // go to position
+    //     float power1 = motor1.lineTo(leftExtension, 10);
+    //     float power2 = motor2.lineTo(rightExtension, 10);
 
-        update_struct(motor1.getDegrees(), motor2.getDegrees(), power1, power2);
+    //     update_struct(motor1.getDegrees(), motor2.getDegrees(), power1, power2);
+    // }
+
+    while (true) {
+        update_struct(1, 2, 3, 4);
+        printf("Sleeping");
+        ThisThread::sleep_for(120s);
     }
+    printf("Successfully recieved writes:\t" + receivedWrite1);
+    printf("Unsuccessfully recieved writes:\t" + receivedWrite_not1);
+    printf("Sent read requests:\t" + sentReadReqs);
 }
 
