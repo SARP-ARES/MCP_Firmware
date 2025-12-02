@@ -22,7 +22,7 @@ char i2c_rx_buf[32];
 #define MCPS_ADDR 0x02 << 1
 
 Mutex mutex;
-float f;
+float f = 1.0;
 
 struct {
     float leftDegrees;
@@ -96,7 +96,7 @@ int main()
     // Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
     // Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
     
-    // // Distributor distributor(&ser);
+    Distributor distributor;
 
     i2cThread.start(i2c_handler);
 
@@ -125,18 +125,36 @@ int main()
     // }
 
     while (true) {
-        ThisThread::sleep_for(500ms);
-        led.write(1);
+
+        mutex.lock();
+        float temp = f;
+        mutex.unlock();
+
+        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(temp);
+        float extension = spoolExtensions.first;
+
+        if (extension > 0.5)    led.write(1);
+        else                    led.write(0);
+        
 
         update_struct(1.0, 2.0, 3.0, 4.0);
+        
+        ThisThread::sleep_for(100ms);
+        // leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
+        // rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
+
+        // led.write(1);
+        // ThisThread::sleep_for(std::chrono::milliseconds(int(1000 * leftExtension)));
+        // led.write(0);
+        // ThisThread::sleep_for(std::chrono::milliseconds(int(1000 * (1 - leftExtension) + 100)));
+
+
+        
         // printf("Sleeping");
         // ThisThread::sleep_for(120s);
         // printf("Successfully recieved writes:\t%d", receivedWrite1);
         // printf("Unsuccessfully recieved writes:\t%d", receivedWrite_not1);
         // printf("Sent read requests:\t%d", sentReadReqs);
-        
-        ThisThread::sleep_for(500ms);
-        led.write(0);
     }
 }
 

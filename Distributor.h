@@ -14,7 +14,7 @@ class Distributor {
         I2CSerial* ser;
 
     public:
-        Distributor(I2CSerial* ser);
+        Distributor();
 
         std::pair<float, float> getMotorOutputs(float ctrl);
 };

@@ -4,24 +4,21 @@
 #include <cmath>
 
 
-Distributor::Distributor(I2CSerial* ser) : ser(ser) {}
+Distributor::Distributor() {}
 
 std::pair<float, float> Distributor::getMotorOutputs(float ctrl)  {
     
-    // char buf[DISTRIBUTOR_BUFFER_SIZE];
-    // if ( !ser->readline(buf, DISTRIBUTOR_BUFFER_SIZE) ) {
-    //     return std::make_pair(NAN, 0);          // whats' the differnece bewteen a nan("1") and a different nan
-    // }
-    // int input;
-    // int res = sscanf(buf, "%d", &input);
-    // if (res != 1) {
-    //     return std::make_pair(NAN, 1);
-    // }
+    float control_input = 0;
+    if (ctrl > 1) {
+        control_input = 1;
+    } else if (ctrl < -1) {
+        control_input = -1;
+    } else {
+        control_input = ctrl;
+    }
     
-    // float ctrl = ( (float) ((int) buf) ) / 100.0;
-    
-    float leftPull = 0.5 * (-ctrl) + 0.5;
-    float rightPull = 0.5 * ctrl + 0.5;
+    float leftPull = 0.5 * (-control_input) + 0.5;
+    float rightPull = 0.5 * control_input + 0.5;
 
     return std::make_pair(leftPull, rightPull);
 }
