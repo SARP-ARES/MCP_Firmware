@@ -5,7 +5,11 @@
 #include "Motor.h"
 #include "PID.h"
 #include "Distributor.h"
+#include "EUSBSerial.h"
 
+
+DigitalOut led(PC_13);
+EUSBSerial pc;
 
 int leftExtension = 0;
 int rightExtension = 0;
@@ -39,20 +43,23 @@ void update_struct(float leftDegrees, float rightDegrees, float leftPower, float
     motorPacket.rightPower = rightPower;
 }
 
+//              SDA, SCL
+I2CSlave slave(PB_7, PB_6);
 
-int i2c_handler(void) {
-
-    I2CSlave slave(PB_7, PB_6);
+void i2c_handler(void) {
     slave.address(MCPS_ADDR); // Expects shifted into correct position
 
     while(true) {
         int event = slave.receive();
-        
+
         switch(event) {
 
             case I2CSlave::WriteAddressed: {
                 int err = slave.read(i2c_rx_buf, sizeof(float));
-                memcpy(&f, i2c_rx_buf, sizeof(float));
+                { 
+                    ScopedLock<Mutex> lock();
+                    memcpy(&f, i2c_rx_buf, sizeof(float));
+                }
                 if (f == 1) {
                     receivedWrite1++;
                 } else {
@@ -62,7 +69,10 @@ int i2c_handler(void) {
             }
 
             case I2CSlave::ReadAddressed: {
-                memcpy(&motorPacket, i2c_tx_buf, sizeof(motorPacket));
+                {
+                    ScopedLock<Mutex> lock();
+                    memcpy(i2c_tx_buf, &motorPacket, sizeof(motorPacket));
+                }
                 slave.write(i2c_tx_buf, sizeof(motorPacket));
 
                 break;
@@ -80,12 +90,13 @@ int i2c_handler(void) {
 int main()
 {
 
-    PID pid(0.017, 0, 1); // No idea if these values work
-    Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
-    Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
-    Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
+
+    // PID pid(0.017, 0, 1); // No idea if these values work
+    // Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
+    // Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
+    // Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
     
-    // Distributor distributor(&ser);
+    // // Distributor distributor(&ser);
 
     i2cThread.start(i2c_handler);
 
@@ -114,12 +125,18 @@ int main()
     // }
 
     while (true) {
-        update_struct(1, 2, 3, 4);
-        printf("Sleeping");
-        ThisThread::sleep_for(120s);
+        ThisThread::sleep_for(500ms);
+        led.write(1);
+
+        update_struct(1.0, 2.0, 3.0, 4.0);
+        // printf("Sleeping");
+        // ThisThread::sleep_for(120s);
+        // printf("Successfully recieved writes:\t%d", receivedWrite1);
+        // printf("Unsuccessfully recieved writes:\t%d", receivedWrite_not1);
+        // printf("Sent read requests:\t%d", sentReadReqs);
+        
+        ThisThread::sleep_for(500ms);
+        led.write(0);
     }
-    printf("Successfully recieved writes:\t" + receivedWrite1);
-    printf("Unsuccessfully recieved writes:\t" + receivedWrite_not1);
-    printf("Sent read requests:\t" + sentReadReqs);
 }
 
