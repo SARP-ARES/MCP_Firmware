@@ -15,42 +15,30 @@ void Motor::updateGlobals() {
 void Motor::aRiseCallback() {
     aUp = true;
 
-    if (!bUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (!bUp)   encoderCounter++;
+    else        encoderCounter--;
 }
 
 
 void Motor::bRiseCallback() {
     bUp = true;
 
-    if (aUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (aUp)    encoderCounter++;
+    else        encoderCounter--;
 }
 
 void Motor::aFallCallback() {
     aUp = false;
 
-    if (bUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (bUp)    encoderCounter++;
+    else        encoderCounter--;
 }
 
 void Motor::bFallCallback() {
     bUp = false;
 
-    if (!aUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (!aUp)   encoderCounter++;
+    else        encoderCounter--;
 }
 
 
@@ -62,13 +50,8 @@ Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, Pin
     encoderA.mode(PullDown);
     encoderB.mode(PullDown);
 
-    if (encoderA.read() == 1) {
-
-        aUp = true;
-    }
-    if (encoderB.read() == 1) {
-        bUp = true;
-    }
+    if (encoderA.read() == 1) aUp = true;
+    if (encoderB.read() == 1) bUp = true;
 
     powerPositive = true;
 
@@ -119,6 +102,7 @@ void Motor::motorPower(float power) {
 }
 
 // Takes an integer for degrees to spin from current position
+// This is print hammering, do not want this in final system
 void Motor::spinDegrees(int degrees) {
     printf("spin degrees\n");
     int initial = getDegrees();

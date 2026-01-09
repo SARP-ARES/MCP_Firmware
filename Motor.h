@@ -45,17 +45,12 @@ class Motor {
         void aFallCallback();
         void bFallCallback();
 
-
     public:
 
         void updateGlobals();
 
-
-        
-
         Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
                 PinName MOTOR_4, const PID& pidObject);
-
         
         void motorPower(float power);
 

@@ -22,7 +22,7 @@ char i2c_rx_buf[32];
 #define MCPS_ADDR 0x02 << 1
 
 Mutex mutex;
-float f = 1.0;
+float cmd_ctrl = 0;
 
 struct {
     float leftDegrees;
@@ -30,10 +30,6 @@ struct {
     float leftPower;
     float rightPower;
 } motorPacket;
-
-int receivedWrite1 = 0;
-int receivedWrite_not1 = 0;
-int sentReadReqs = 0;
 
 void update_struct(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
     ScopedLock<Mutex> lock(mutex);
@@ -47,7 +43,7 @@ void update_struct(float leftDegrees, float rightDegrees, float leftPower, float
 I2CSlave slave(PB_7, PB_6);
 
 void i2c_handler(void) {
-    slave.address(MCPS_ADDR); // Expects shifted into correct position
+    slave.address(MCPS_ADDR); 
 
     while(true) {
         int event = slave.receive();
@@ -55,41 +51,36 @@ void i2c_handler(void) {
         switch(event) {
 
             case I2CSlave::WriteAddressed: {
+
                 int err = slave.read(i2c_rx_buf, sizeof(float));
+
                 { 
                     ScopedLock<Mutex> lock();
-                    memcpy(&f, i2c_rx_buf, sizeof(float));
+                    memcpy(&cmd_ctrl, i2c_rx_buf, sizeof(float));
                 }
-                if (f == 1) {
-                    receivedWrite1++;
-                } else {
-                    receivedWrite_not1++;
-                }
+
                 break;
             }
 
             case I2CSlave::ReadAddressed: {
+
                 {
                     ScopedLock<Mutex> lock();
                     memcpy(i2c_tx_buf, &motorPacket, sizeof(motorPacket));
                 }
+
                 slave.write(i2c_tx_buf, sizeof(motorPacket));
 
                 break;
             }
 
-            default:
-                // No event; just continue
-                break;
+            default: break;
         }
     }
 }
 
-
-// main() runs in its own thread in the OS
 int main()
 {
-
 
     // PID pid(0.017, 0, 1); // No idea if these values work
     // Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
@@ -99,11 +90,6 @@ int main()
     Distributor distributor;
 
     i2cThread.start(i2c_handler);
-
-
-        //  DEBUG  //
-    // printf("start :)\n");
-    // DigitalOut led1(PC_14);
 
     // while (true) {
     //     ThisThread::sleep_for(10ms);
@@ -126,35 +112,23 @@ int main()
 
     while (true) {
 
-        mutex.lock();
-        float temp = f;
-        mutex.unlock();
+        float ctrl; 
 
-        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(temp);
+        { 
+            ScopedLock<Mutex> lock();
+            ctrl = cmd_ctrl; 
+        }
+
+        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(ctrl);
         float extension = spoolExtensions.first;
 
         if (extension > 0.5)    led.write(1);
         else                    led.write(0);
         
-
         update_struct(1.0, 2.0, 3.0, 4.0);
         
         ThisThread::sleep_for(100ms);
-        // leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
-        // rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
 
-        // led.write(1);
-        // ThisThread::sleep_for(std::chrono::milliseconds(int(1000 * leftExtension)));
-        // led.write(0);
-        // ThisThread::sleep_for(std::chrono::milliseconds(int(1000 * (1 - leftExtension) + 100)));
-
-
-        
-        // printf("Sleeping");
-        // ThisThread::sleep_for(120s);
-        // printf("Successfully recieved writes:\t%d", receivedWrite1);
-        // printf("Unsuccessfully recieved writes:\t%d", receivedWrite_not1);
-        // printf("Sent read requests:\t%d", sentReadReqs);
     }
 }
 
