@@ -13,44 +13,32 @@ void MotorCOTS::updateGlobals() {
 void MotorCOTS::aRiseCallback() {
     aUp = true;
 
-    if (!bUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (!bUp)   encoderCounter++;
+    else        encoderCounter--;
 }
 
 // Tickes encoder count forward or backward on encoder b rise callback
 void MotorCOTS::bRiseCallback() {
     bUp = true;
 
-    if (aUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (aUp)    encoderCounter++;
+    else        encoderCounter--;
 }
 
 // Tickes encoder count forward or backward on encoder a fall callback
 void MotorCOTS::aFallCallback() {
     aUp = false;
 
-    if (bUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (bUp)    encoderCounter++;
+    else        encoderCounter--;
 }
 
 // Tickes encoder count forward or backward on encoder b fall callback
 void MotorCOTS::bFallCallback() {
     bUp = false;
 
-    if (!aUp) {
-        encoderCounter++;
-    } else {
-        encoderCounter--;
-    }
+    if (!aUp)   encoderCounter++;
+    else        encoderCounter--;
 }
 
 
@@ -64,13 +52,8 @@ MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerTh
     encoderA.mode(PullDown);
     encoderB.mode(PullDown);
 
-    if (encoderA.read() == 1) {
-
-        aUp = true;
-    }
-    if (encoderB.read() == 1) {
-        bUp = true;
-    }
+    if (encoderA.read() == 1) aUp = true;
+    if (encoderB.read() == 1) bUp = true;
 
     powerPositive = true;
 
@@ -81,7 +64,6 @@ MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerTh
     encoderB.fall([this]() {bFallCallback();});
 
 }
-
 
 // Set motor direction
 // Takes:   int direction (1 for forward, -1 for backward)
@@ -133,14 +115,11 @@ void MotorCOTS::toPosition(float pullPercent, int dt) {
 
     float power = pid->compute(currPos, targetPos, dt);
 
-    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) {
-        motorPower(0);
-    } else {
-        motorPower(-power);
-    }
+    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5)    motorPower(0);
+    else                                                        motorPower(-power);
 
     // Debug print statements 
-    pc->printf("\t\tCurrent: %f\tTarget: %f", currPos, targetPos);
+    // pc->printf("\t\tCurrent: %f\tTarget: %f", currPos, targetPos);
     // pc->printf("\tTarget pull percent: %f", pullPercent);
     // pc-printf("\tMax deflection: %f", MAX_DEFLECTION);
     // pc->printf("Difference: %f\t", currPos-targetPos);
