@@ -1,12 +1,10 @@
+#include "DigitalOut.h"
+#include "ThisThread.h"
 #include "mbed.h"
-#include <string>
-#include "I2CSerial.h"
-
-#include "Motor.h"
+#include "MotorCOTS.h"
+#include "EUSBSerial.h"
 #include "PID.h"
 #include "Distributor.h"
-#include "EUSBSerial.h"
-
 
 DigitalOut led(PC_13);
 EUSBSerial pc;
@@ -79,56 +77,87 @@ void i2c_handler(void) {
     }
 }
 
-int main()
-{
-
-    // PID pid(0.017, 0, 1); // No idea if these values work
-    // Motor motor(PA_8, PA_10, PB_2, PB_1, PB_15, PB_14, pid); // test bench
-    // Motor motor1(PB_3, PB_5, PA_11, PA_12, PA_10, PA_9, pid); // these are the mcpcb
-    // Motor motor2(PA_6, PA_5, PB_14, PB_15, PB_13, PA_8, pid);
-    
-    Distributor distributor;
-
-    i2cThread.start(i2c_handler);
-
-    // while (true) {
-    //     ThisThread::sleep_for(10ms);
-    //     // get distributed pair
-    //     mutex.lock();
-    //     float ctrl = f;
-    //     mutex.unlock();
-    //     std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(ctrl);
-        
-    //     // if the first float is a NAN, keep each extension value the same
-    //     leftExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.first : leftExtension;
-    //     rightExtension = (isnan(spoolExtensions.first)) ? spoolExtensions.second : rightExtension;
-
-    //     // go to position
-    //     float power1 = motor1.lineTo(leftExtension, 10);
-    //     float power2 = motor2.lineTo(rightExtension, 10);
-
-    //     update_struct(motor1.getDegrees(), motor2.getDegrees(), power1, power2);
-    // }
-
-    while (true) {
-
-        float ctrl; 
-
-        { 
-            ScopedLock<Mutex> lock();
-            ctrl = cmd_ctrl; 
-        }
-
-        std::pair<float, float> spoolExtensions = distributor.getMotorOutputs(ctrl);
-        float extension = spoolExtensions.first;
-
-        if (extension > 0.5)    led.write(1);
-        else                    led.write(0);
-        
-        update_struct(1.0, 2.0, 3.0, 4.0);
-        
-        ThisThread::sleep_for(100ms);
-
+// Steers ARES in a set turn angle for a set ammount of time
+// Takes:   float for steering (-1 full left 1 full right), an int of seconds to hold for, two motor pointer 
+//          for the left and right motors, a distributor pointer, and a USB serial pointer
+void ctrl(float cmd, int seconds, MotorCOTS* motor1, MotorCOTS* motor2, Distributor* dstb, EUSBSerial* pc) {
+    Timer t;
+    t.start();
+    std::pair<float, float> extensions;
+    extensions = dstb->getMotorOutputsManual(cmd);
+    while (t.read_ms() < 1000*seconds) {
+        pc->printf("\tcmd: %f", cmd);
+        motor1->toPosition(extensions.first, 10);
+        motor2->toPosition(extensions.second, 10);
+        pc->printf("\n");
+        ThisThread::sleep_for(10ms);
     }
 }
 
+// Pulls each control line set ammounts for a set ammount of time
+// Takes:   float for left motor retraction, float for right motor retraction, an int of seconds to hold for,
+//          two motor pointer for the left and right motors, a distributor pointer, and a USB serial pointer
+void ctrl_manual(float cmd1, float cmd2, int seconds, MotorCOTS* motor1, MotorCOTS* motor2, EUSBSerial* pc) {
+    Timer t;
+    t.start();
+    while (t.read_ms() < 1000*seconds) {
+        pc->printf("cmd: full open");
+        motor1->toPosition(cmd1, 10);
+        motor2->toPosition(cmd2, 10);
+        pc->printf("\n");
+        ThisThread::sleep_for(10ms);
+    }
+}
+
+
+
+int main() {
+    // Debug LED
+    DigitalOut led(PC_13);
+    
+    // USB serial init
+    EUSBSerial pc;
+    ThisThread::sleep_for(1s);
+    pc.printf("\nSerial Port Connected!\n");
+    led.write(1);
+
+
+    // Object init
+    PID pid(1, 0, 5);
+    // Direction 1, direction 2, throttle, encoder a, encoder b
+    // MotorCOTS motor1(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
+    // MotorCOTS motor2(PA_10, PA_9, PA_8, PA_15, PB_3, &pid, &pc);
+    // New Driver board pinout
+    MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); //motor A
+    MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); //motor B
+    Distributor dstb;
+    std::pair<float, float> extensions;
+
+
+
+    // // Control Trigger
+    // DigitalIn ctrl_trigger(PB_7); // SDA1 (pulled high by default, trigger is low)
+    // while(ctrl_trigger.read() == 1) {
+    //     ThisThread::sleep_for(10ms);
+    // }
+    // pc.printf("\nTHE THING WAS TRIGGERED...\n STARTING CONTROL SEQUENCE...");
+    // led.write(0);
+
+
+
+
+    // CONTROL SEQUENCE:
+    // ctrl(cmd1, time (seconds), ...)
+    // cmd = -1 is full left, 1 is full right
+    ctrl(0.25, 60, &motor1, &motor2, &dstb, &pc);
+    ctrl(0.5, 60, &motor1, &motor2, &dstb, &pc);
+    ctrl(0.75, 60, &motor1, &motor2, &dstb, &pc);
+    ctrl(1, 120, &motor1, &motor2, &dstb, &pc);
+    ctrl(0, 60, &motor1, &motor2, &dstb, &pc);
+    ctrl(-0.5, 60, &motor1, &motor2, &dstb, &pc);
+    ctrl(-1, 60, &motor1, &motor2, &dstb, &pc);
+    while (true) {
+        ctrl(1, 3600, &motor1, &motor2, &dstb, &pc);
+    }
+
+}
