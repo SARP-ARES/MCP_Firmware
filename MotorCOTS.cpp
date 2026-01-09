@@ -83,7 +83,7 @@ void MotorCOTS::direction(int direction) {
 
 // Set motor power
 // Takes:   float power (0 to 1 for forward, 0 to -1 for backward)
-void MotorCOTS::motorPower(float power) {
+void MotorCOTS::motorPower() {
     if (power > 0) {
         direction(1);
         powerThrottle.write(power);
@@ -108,19 +108,22 @@ float MotorCOTS::getPosition() {
 
 // Moves motor to target position using PID controller
 // Takes:   float target position in inches, int dt in milliseconds since last call
-void MotorCOTS::toPosition(float pullPercent, int dt) {
+float MotorCOTS::toPosition(float pullPercent, int dt) {
     
     float currPos = getPosition();
     float targetPos = pullPercent*MAX_DEFLECTION;
 
-    float power = pid->compute(currPos, targetPos, dt);
+    power = pid->compute(currPos, targetPos, dt);
 
-    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5)    motorPower(0);
-    else                                                        motorPower(-power);
+    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) power = 0;
+    
+    motorPower(); 
 
     // Debug print statements 
     // pc->printf("\t\tCurrent: %f\tTarget: %f", currPos, targetPos);
     // pc->printf("\tTarget pull percent: %f", pullPercent);
     // pc-printf("\tMax deflection: %f", MAX_DEFLECTION);
     // pc->printf("Difference: %f\t", currPos-targetPos);
+    
+    return power; 
 }

@@ -34,6 +34,7 @@ class MotorCOTS {
         float angle;
         float rotations;
         bool powerPositive;
+        float power; 
 
         void aRiseCallback();
         void bRiseCallback();
@@ -47,19 +48,16 @@ class MotorCOTS {
 
         void updateGlobals();
 
-
-        
-
         // MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid);
         MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerThrottle, PinName PINA, PinName PINB, PID* pid, EUSBSerial* pc);
 
         void direction(int direction);
-        void motorPower(float power);
+        void motorPower();
 
         int getDegrees();
         float getPosition();
 
-        void toPosition(float target, int dt);
+        float toPosition(float target, int dt);
 };
 
 #endif //_MOTORCOTS_H_

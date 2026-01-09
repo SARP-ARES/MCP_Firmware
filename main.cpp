@@ -6,18 +6,30 @@
 #include "PID.h"
 #include "Distributor.h"
 
-DigitalOut led(PC_13);
-EUSBSerial pc;
+#define MCPS_ADDR 0x02 << 1
+#define LOOP_PERIOD_MS 20
 
-int leftExtension = 0;
-int rightExtension = 0;
+// Debug Led
+DigitalOut led(PC_13);
+
+// Serial
+EUSBSerial pc;
+    
+// Object init
+PID pid(1, 0, 5);
+
+// New Driver board pinout
+MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); //motor A
+MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); //motor B
+Distributor dstb;
+
+// Defleciton cmds
+std::pair<float, float> extensions;
 
 Thread i2cThread; // setup thread
 
 char i2c_tx_buf[32];
 char i2c_rx_buf[32];
-
-#define MCPS_ADDR 0x02 << 1
 
 Mutex mutex;
 float cmd_ctrl = 0;
@@ -29,7 +41,7 @@ struct {
     float rightPower;
 } motorPacket;
 
-void update_struct(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
+void update_motorPacket(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
     ScopedLock<Mutex> lock(mutex);
     motorPacket.leftDegrees = leftDegrees;
     motorPacket.rightDegrees = rightDegrees;
@@ -53,7 +65,7 @@ void i2c_handler(void) {
                 int err = slave.read(i2c_rx_buf, sizeof(float));
 
                 { 
-                    ScopedLock<Mutex> lock();
+                    ScopedLock<Mutex> lock(mutex);
                     memcpy(&cmd_ctrl, i2c_rx_buf, sizeof(float));
                 }
 
@@ -63,12 +75,11 @@ void i2c_handler(void) {
             case I2CSlave::ReadAddressed: {
 
                 {
-                    ScopedLock<Mutex> lock();
+                    ScopedLock<Mutex> lock(mutex);
                     memcpy(i2c_tx_buf, &motorPacket, sizeof(motorPacket));
                 }
 
                 slave.write(i2c_tx_buf, sizeof(motorPacket));
-
                 break;
             }
 
@@ -77,6 +88,8 @@ void i2c_handler(void) {
     }
 }
 
+/* -------- DEBUG --------- */
+
 // Steers ARES in a set turn angle for a set ammount of time
 // Takes:   float for steering (-1 full left 1 full right), an int of seconds to hold for, two motor pointer 
 //          for the left and right motors, a distributor pointer, and a USB serial pointer
@@ -84,7 +97,7 @@ void ctrl(float cmd, int seconds, MotorCOTS* motor1, MotorCOTS* motor2, Distribu
     Timer t;
     t.start();
     std::pair<float, float> extensions;
-    extensions = dstb->getMotorOutputsManual(cmd);
+    extensions = dstb->getMotorOutputs(cmd);
     while (t.read_ms() < 1000*seconds) {
         pc->printf("\tcmd: %f", cmd);
         motor1->toPosition(extensions.first, 10);
@@ -109,55 +122,45 @@ void ctrl_manual(float cmd1, float cmd2, int seconds, MotorCOTS* motor1, MotorCO
     }
 }
 
+void led_if_deflection_pos(float ctrl) {
+    if (ctrl > 0) led.write(1);
+    else          led.write(0);
+}
 
+/* ------------------------- */
 
 int main() {
-    // Debug LED
-    DigitalOut led(PC_13);
-    
-    // USB serial init
-    EUSBSerial pc;
-    ThisThread::sleep_for(1s);
-    pc.printf("\nSerial Port Connected!\n");
-    led.write(1);
 
+    Timer t;
 
-    // Object init
-    PID pid(1, 0, 5);
-    // Direction 1, direction 2, throttle, encoder a, encoder b
-    // MotorCOTS motor1(PB_8, PB_9, PA_1, PA_6, PA_7, &pid, &pc);
-    // MotorCOTS motor2(PA_10, PA_9, PA_8, PA_15, PB_3, &pid, &pc);
-    // New Driver board pinout
-    MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); //motor A
-    MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); //motor B
-    Distributor dstb;
-    std::pair<float, float> extensions;
-
-
-
-    // // Control Trigger
-    // DigitalIn ctrl_trigger(PB_7); // SDA1 (pulled high by default, trigger is low)
-    // while(ctrl_trigger.read() == 1) {
-    //     ThisThread::sleep_for(10ms);
-    // }
-    // pc.printf("\nTHE THING WAS TRIGGERED...\n STARTING CONTROL SEQUENCE...");
-    // led.write(0);
-
-
-
-
-    // CONTROL SEQUENCE:
-    // ctrl(cmd1, time (seconds), ...)
-    // cmd = -1 is full left, 1 is full right
-    ctrl(0.25, 60, &motor1, &motor2, &dstb, &pc);
-    ctrl(0.5, 60, &motor1, &motor2, &dstb, &pc);
-    ctrl(0.75, 60, &motor1, &motor2, &dstb, &pc);
-    ctrl(1, 120, &motor1, &motor2, &dstb, &pc);
-    ctrl(0, 60, &motor1, &motor2, &dstb, &pc);
-    ctrl(-0.5, 60, &motor1, &motor2, &dstb, &pc);
-    ctrl(-1, 60, &motor1, &motor2, &dstb, &pc);
     while (true) {
-        ctrl(1, 3600, &motor1, &motor2, &dstb, &pc);
+        t.start();
+        
+        float ctrl;
+
+        {   // Safely grab commanded ctrl 
+            ScopedLock<Mutex> lock(mutex);
+            ctrl = cmd_ctrl;
+        }
+        
+        // RUN COMMANDS
+        /* ext.first -> left : ext.second -> right */
+        extensions = dstb.getMotorOutputs(ctrl);
+        float lpower = motor1.toPosition(extensions.first, 10);  // Left cmd
+        float rpower = motor2.toPosition(extensions.second, 10); // Right cmd
+
+        led_if_deflection_pos(ctrl);
+
+        // UPDATE FLASH DATA
+        update_motorPacket(
+            motor1.getDegrees(), // Left Motor
+            motor2.getDegrees(), // Right Motor
+            lpower,         
+            rpower
+        );
+
+        // Event Scheduling
+        if(t.read_ms() < LOOP_PERIOD_MS) ThisThread::sleep_for(LOOP_PERIOD_MS - t.read_ms());
     }
 
 }
