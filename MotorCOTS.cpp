@@ -96,9 +96,9 @@ void MotorCOTS::motorPower() {
 }
 
 // Returns motor angle in degrees
-int MotorCOTS::getDegrees() {
+float MotorCOTS::getDegrees() {
     updateGlobals();
-    return (int)angle;
+    return angle;
 }
 
 // Returns motor linear position in inches
