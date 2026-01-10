@@ -132,6 +132,7 @@ void led_if_deflection_pos(float ctrl) {
 int main() {
 
     Timer t;
+    i2cThread.start(i2c_handler);
 
     while (true) {
         t.start();
