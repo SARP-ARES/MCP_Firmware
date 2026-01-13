@@ -137,6 +137,8 @@ int main() {
     while (true) {
         t.start();
         
+
+        // COMMS
         float ctrl;
 
         {   // Safely grab commanded ctrl 
@@ -146,7 +148,7 @@ int main() {
         
         // RUN COMMANDS
         /* ext.first -> left : ext.second -> right */
-        extensions = dstb.getMotorOutputs(ctrl);
+        extensions = dstb.getMotorOutputs(0.0);
         float lpower = motor1.toPosition(extensions.first, 10);  // Left cmd
         float rpower = motor2.toPosition(extensions.second, 10); // Right cmd
 
@@ -154,10 +156,10 @@ int main() {
 
         // UPDATE FLASH DATA
         update_motorPacket(
-            motor1.getDegrees(), // Left Motor
-            motor2.getDegrees(), // Right Motor
-            lpower,         
-            rpower
+            motor1.getPosition(), // Left Motor
+            motor2.getPosition(), // Right Motor
+            extensions.first,         
+            extensions.second
         );
 
         // Event Scheduling

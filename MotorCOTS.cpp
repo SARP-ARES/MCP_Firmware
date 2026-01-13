@@ -113,7 +113,7 @@ float MotorCOTS::toPosition(float pullPercent, int dt) {
     float currPos = getPosition();
     float targetPos = pullPercent*MAX_DEFLECTION;
 
-    power = pid->compute(currPos, targetPos, dt);
+    power = -pid->compute(currPos, targetPos, dt);
 
     if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) power = 0;
     

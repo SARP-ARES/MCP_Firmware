@@ -31,10 +31,7 @@ float PID::compute(float currAngle, float targetAngle, float dt) {
     float D = -Kd * (error - errorLast) / dt;
     errorLast = error;
     int output = P + I + D;
-    if (output > 1) {
-        return 1;
-    } else if (output < -1) {
-        return -1;
-    }
+    if (output > 1)         return 1;
+    else if (output < -1)   return -1;
     return output;
 }
