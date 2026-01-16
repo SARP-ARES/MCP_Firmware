@@ -29,10 +29,9 @@ std::pair<float, float> extensions;
 Thread i2cThread; // setup thread
 
 char i2c_tx_buf[32];
-char i2c_rx_buf[32];
 
 Mutex mutex;
-float cmd_ctrl = 0;
+volatile float cmd_ctrl;
 
 struct {
     float leftDegrees;
@@ -61,24 +60,17 @@ void i2c_handler(void) {
         switch(event) {
 
             case I2CSlave::WriteAddressed: {
+                
+                char temp [sizeof(float)];
+                int err = slave.read(temp, sizeof(float));
 
-                int err = slave.read(i2c_rx_buf, sizeof(float));
-
-                { 
-                    ScopedLock<Mutex> lock(mutex);
-                    memcpy(&cmd_ctrl, i2c_rx_buf, sizeof(float));
-                }
+                if(err == 0) memcpy((void*)&cmd_ctrl, temp, sizeof(float));
 
                 break;
             }
 
             case I2CSlave::ReadAddressed: {
-
-                {
-                    ScopedLock<Mutex> lock(mutex);
-                    memcpy(i2c_tx_buf, &motorPacket, sizeof(motorPacket));
-                }
-
+                memcpy(i2c_tx_buf, &motorPacket, sizeof(motorPacket));
                 slave.write(i2c_tx_buf, sizeof(motorPacket));
                 break;
             }
@@ -137,18 +129,17 @@ int main() {
     while (true) {
         t.start();
         
-
         // COMMS
         float ctrl;
 
-        {   // Safely grab commanded ctrl 
+        {
             ScopedLock<Mutex> lock(mutex);
-            ctrl = cmd_ctrl;
-        }
-        
+            ctrl = cmd_ctrl; 
+        }     
+
         // RUN COMMANDS
         /* ext.first -> left : ext.second -> right */
-        extensions = dstb.getMotorOutputs(0.0);
+        extensions = dstb.getMotorOutputs(ctrl);
         float lpower = motor1.toPosition(extensions.first, 10);  // Left cmd
         float rpower = motor2.toPosition(extensions.second, 10); // Right cmd
 
