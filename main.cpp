@@ -127,15 +127,16 @@ int main() {
     i2cThread.start(i2c_handler);
 
     while (true) {
+        t.reset();
         t.start();
         
         // COMMS
         float ctrl;
 
-        {
-            ScopedLock<Mutex> lock(mutex);
-            ctrl = cmd_ctrl; 
-        }     
+        // {
+            // ScopedLock<Mutex> lock(mutex);
+        ctrl = cmd_ctrl; 
+        // }     
 
         // RUN COMMANDS
         /* ext.first -> left : ext.second -> right */

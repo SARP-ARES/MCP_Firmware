@@ -69,12 +69,12 @@ MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerTh
 // Takes:   int direction (1 for forward, -1 for backward)
 void MotorCOTS::direction(int direction) {
     if (direction == 1) {
-        ThisThread::sleep_for(2ms);
+        ThisThread::sleep_for(20ms);
         directionTwo.write(0);
         directionOne.write(1);
         powerPositive = true;
     } else if (direction == -1) {
-        ThisThread::sleep_for(2ms);
+        ThisThread::sleep_for(20ms);
         directionOne.write(0);
         directionTwo.write(1);
         powerPositive = false;
@@ -115,7 +115,7 @@ float MotorCOTS::toPosition(float pullPercent, int dt) {
 
     power = -pid->compute(currPos, targetPos, dt);
 
-    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) power = 0;
+    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) power = 0.0f;
     
     motorPower(); 
 

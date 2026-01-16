@@ -30,8 +30,8 @@ float PID::compute(float currAngle, float targetAngle, float dt) {
     float I = -Ki * integralError;
     float D = -Kd * (error - errorLast) / dt;
     errorLast = error;
-    int output = P + I + D;
-    if      (output > 1)     return 1;
-    else if (output < -1)   return -1;
+    float output = P + I + D;
+    if (output > 1.0f) return 1.0f;
+    else if (output < -1.0f) return -1.0f;
     return output;
 }
