@@ -5,6 +5,7 @@
 #include "EUSBSerial.h"
 #include "PID.h"
 #include "Distributor.h"
+#include <atomic>
 
 #define MCPS_ADDR 0x02 << 1
 #define LOOP_PERIOD_MS 20
@@ -31,7 +32,7 @@ Thread i2cThread; // setup thread
 char i2c_tx_buf[32];
 
 Mutex mutex;
-volatile float cmd_ctrl;
+std::atomic<float> cmd_ctrl{0.0f};
 
 struct {
     float leftDegrees;
@@ -61,11 +62,12 @@ void i2c_handler(void) {
 
             case I2CSlave::WriteAddressed: {
                 
-                char temp [sizeof(float)];
-                int err = slave.read(temp, sizeof(float));
-
-                if(err == 0) memcpy((void*)&cmd_ctrl, temp, sizeof(float));
-
+                char temp[sizeof(float)];
+                if(slave.read(temp, sizeof(float)) == 0) {
+                    float val;
+                    memcpy(&val, temp, sizeof(float));
+                    cmd_ctrl.store(val); // Atomic non-blocking store
+                }
                 break;
             }
 
@@ -131,12 +133,7 @@ int main() {
         t.start();
         
         // COMMS
-        float ctrl;
-
-        // {
-            // ScopedLock<Mutex> lock(mutex);
-        ctrl = cmd_ctrl; 
-        // }     
+        float ctrl = cmd_ctrl.load();
 
         // RUN COMMANDS
         /* ext.first -> left : ext.second -> right */
