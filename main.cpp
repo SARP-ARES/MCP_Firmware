@@ -16,19 +16,21 @@ DigitalOut led(PC_13);
 // Serial
 EUSBSerial pc;
     
-// Object init
-PID pid(1, 0, 5);
+// Initializing the PID controller for both motors
+PID pid(0.1, 0, 5);
 
-// New Driver board pinout
-MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); //motor A
-MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); //motor B
+MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); // Motor A
+MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); // Motor B
 Distributor dstb;
 
-// Defleciton cmds
+// Relative extensions for both motors
+// 0 = retracted, 1 = fully exteded
 std::pair<float, float> extensions;
 
-Thread i2cThread; // setup thread
+Thread i2cThread;
 
+// Buffer for I2C transmission
+// 32 bytes for 4 floats (motor positions and powers)
 char i2c_tx_buf[32];
 
 Mutex mutex;
@@ -52,6 +54,7 @@ void update_motorPacket(float leftDegrees, float rightDegrees, float leftPower, 
 //              SDA, SCL
 I2CSlave slave(PB_7, PB_6);
 
+// I2C handler thread takes motor control inputs and upon request sends motor status packet
 void i2c_handler(void) {
     slave.address(MCPS_ADDR); 
 
@@ -82,7 +85,6 @@ void i2c_handler(void) {
     }
 }
 
-/* -------- DEBUG --------- */
 
 // Steers ARES in a set turn angle for a set ammount of time
 // Takes:   float for steering (-1 full left 1 full right), an int of seconds to hold for, two motor pointer 
@@ -116,10 +118,12 @@ void ctrl_manual(float cmd1, float cmd2, int seconds, MotorCOTS* motor1, MotorCO
     }
 }
 
+// LED debug indicator method
 void led_if_deflection_pos(float ctrl) {
     if (ctrl > 0) led.write(1);
     else          led.write(0);
 }
+
 
 /* ------------------------- */
 

@@ -42,6 +42,8 @@ void MotorCOTS::bFallCallback() {
 }
 
 
+
+
 // Initialize motor object, set encoder states
 // Takes:  PinName for direction one control line, PinName for direction two control line, PinName for power throttle (PWM),
 //         PinName for encoder A, PinName for encoder B, PID pointer for motor PID controller, EUSBSerial pointer for debugging serial
@@ -64,6 +66,7 @@ MotorCOTS::MotorCOTS(PinName directionOne, PinName directionTwo, PinName powerTh
     encoderB.fall([this]() {bFallCallback();});
 
 }
+
 
 // Set motor direction
 // Takes:   int direction (1 for forward, -1 for backward)
@@ -118,12 +121,6 @@ float MotorCOTS::toPosition(float pullPercent, int dt) {
     if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) power = 0.0f;
     
     motorPower(); 
-
-    // Debug print statements 
-    // pc->printf("\t\tCurrent: %f\tTarget: %f", currPos, targetPos);
-    // pc->printf("\tTarget pull percent: %f", pullPercent);
-    // pc-printf("\tMax deflection: %f", MAX_DEFLECTION);
-    // pc->printf("Difference: %f\t", currPos-targetPos);
     
     return power; 
 }
