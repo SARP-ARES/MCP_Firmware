@@ -8,7 +8,7 @@
 
 class PID {
     public: 
-        PID(float Kp, float Ki, float Kd);
+        PID(float Kp, float Ki, float Kd, float deadzone);
         float compute(float currAngle, float targetAngle, float dt);
 
     private:
@@ -19,6 +19,7 @@ class PID {
         float errorLast;
         float integralError;
         bool positiveLast;
+        float deadzone;
 };
 
 

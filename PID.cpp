@@ -3,13 +3,14 @@
 // Initialize PID controller
 // Takes:   float for proportional constant, float for integral constant
 //          float derivative constant
-PID::PID(float Kp, float Ki, float Kd) {
+PID::PID(float Kp, float Ki, float Kd, float deadzone) {
     positiveLast = true;
     errorLast = 0;
     integralError = 0;
     this->Kp = Kp;
     this->Ki = Ki;
     this->Kd = Kd;
+    this->deadzone = deadzone;
 }
 
 // Compute PID output
@@ -33,5 +34,8 @@ float PID::compute(float currAngle, float targetAngle, float dt) {
     float output = P + I + D;
     if (output > 1.0f) return 1.0f;
     else if (output < -1.0f) return -1.0f;
+    if (output < this->deadzone) {
+        output = 0;
+    }
     return output;
 }
