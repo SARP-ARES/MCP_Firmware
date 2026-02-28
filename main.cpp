@@ -153,6 +153,7 @@ int main() {
 
         // RUN COMMANDS
         /* ext.first -> left : ext.second -> right */
+        // check for the default value so that motors don't spin until a command is received from the flight computer
         if (ctrl != DEFAULT_CTRL_VALUE) {
             extensions = dstb.getMotorOutputs(ctrl);
             float lpower = motor1.toPosition(extensions.first, 10);  // Left cmd
