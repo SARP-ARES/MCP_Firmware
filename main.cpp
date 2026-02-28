@@ -23,6 +23,9 @@ MotorCOTS motor1(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); // Motor A
 MotorCOTS motor2(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); // Motor B
 Distributor dstb;
 
+
+const float DEFAULT_CTRL_VALUE = 999.0f;
+
 // Relative extensions for both motors
 // 0 = retracted, 1 = fully exteded
 std::pair<float, float> extensions;
@@ -34,7 +37,7 @@ Thread i2cThread;
 char i2c_tx_buf[32];
 
 Mutex mutex;
-std::atomic<float> cmd_ctrl{0.0f};
+std::atomic<float> cmd_ctrl{DEFAULT_CTRL_VALUE};
 
 struct {
     float leftDegrees;
@@ -42,6 +45,14 @@ struct {
     float leftPower;
     float rightPower;
 } motorPacket;
+
+
+bool is_nan_safe(float f) {
+    uint32_t i;
+    memcpy(&i, &f, sizeof(i));
+    return (i & 0x7F800000) == 0x7F800000 && (i & 0x007FFFFF) != 0;
+}
+
 
 void update_motorPacket(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
     ScopedLock<Mutex> lock(mutex);
@@ -141,9 +152,11 @@ int main() {
 
         // RUN COMMANDS
         /* ext.first -> left : ext.second -> right */
-        extensions = dstb.getMotorOutputs(ctrl);
-        float lpower = motor1.toPosition(extensions.first, 10);  // Left cmd
-        float rpower = motor2.toPosition(extensions.second, 10); // Right cmd
+        if (ctrl != DEFAULT_CTRL_VALUE) {
+            extensions = dstb.getMotorOutputs(ctrl);
+            float lpower = motor1.toPosition(extensions.first, 10);  // Left cmd
+            float rpower = motor2.toPosition(extensions.second, 10); // Right cmd
+        }
 
         led_if_deflection_pos(ctrl);
 
@@ -157,6 +170,6 @@ int main() {
 
         // Event Scheduling
         if(t.read_ms() < LOOP_PERIOD_MS) ThisThread::sleep_for(LOOP_PERIOD_MS - t.read_ms());
-    }
+    }   
 
 }
