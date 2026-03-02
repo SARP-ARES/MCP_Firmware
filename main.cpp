@@ -16,8 +16,13 @@ DigitalOut led(PC_13);
 // Serial
 EUSBSerial pc;
     
+const float Kp  = 0.2;
+const float Ki  = 0;
+const float Kd  = 0.1;
+const float DEADZONE  = 0.05;
+
 // Initializing the PID controller for both motors
-PID pid(0.1, 0, 5, 0.05);
+PID pid(Kp, Ki, Kd, DEADZONE);
 
 MotorCOTS motor1(PA_6, PA_5, PA_1, PB_8, PB_9, &pid, &pc); // Motor B ()
 MotorCOTS motor2(PB_0, PA_7, PB_1, PC_14, PC_15, &pid, &pc); // Motor A ()
