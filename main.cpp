@@ -15,8 +15,8 @@ DigitalOut led(PC_13);
 
 // Serial
 EUSBSerial pc;
-    
-const float Kp  = 0.2;
+
+const float Kp  = 1.2;
 const float Ki  = 0;
 const float Kd  = 0.1;
 const float DEADZONE  = 0.05;

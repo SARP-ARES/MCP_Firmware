@@ -16,8 +16,8 @@ PID::PID(float Kp, float Ki, float Kd, float deadzone) {
 // Compute PID output
 // Takes:   float current angle, float target angle, float dt in milliseconds since last call
 // Returns: float output power (-1 to 1)
-float PID::compute(float currAngle, float targetAngle, float dt) {
-    float error = targetAngle - currAngle;
+float PID::compute(float curr, float target, float dt) {
+    float error = target - curr;
     integralError += error*dt; // todo: solve integral windup later
     
     // Reset integralError if the error switches sign
