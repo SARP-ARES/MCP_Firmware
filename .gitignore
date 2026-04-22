@@ -4,5 +4,6 @@ projectfiles
 *.py*
 mbed-os
 BUILD
+EUSBSERIAL/
 
 BLACKPILL_Custom_Target
