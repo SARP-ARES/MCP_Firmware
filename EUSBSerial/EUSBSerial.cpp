@@ -12,48 +12,19 @@ EUSBSerial::~EUSBSerial() {
 }
 
 bool EUSBSerial::printf(const char* format, ...) {
-    if (!pc.connected())
-        return false;
-    
-    Thread t1;
-    Timer t;
-
-    va_list args;
-
-    va_start(args, format);
-    this->_format = format;
-    this->_args = args;
-    va_end(args);
-
-    t1.start([this]() { _printf(); });
-    t.start();
-
-    while (!this->_success) {
-        if (t.read_ms() > 500) {
-            pc.disconnect();
-            return false;
-        }
-    }
-
-    t1.join();
-
-    return true;
-}
-
-
-void EUSBSerial::_printf() {
-    this->_success = false;
+    if (!pc.connected()) return false;
 
     char buffer[MBED_CONF_EUSBSERIAL_MAX_PACKET_SIZE];
+    va_list args;
+    va_start(args, format);
+    int n = vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
 
-    size_t n = vsnprintf (buffer, MBED_CONF_EUSBSERIAL_MAX_PACKET_SIZE, _format, _args);
-    
-    if (n > 0 && n < MBED_CONF_EUSBSERIAL_MAX_PACKET_SIZE) {
-        pc.write(buffer, n);
-        this->_success = true;
+    if (n > 0) {
+        return pc.write((uint8_t*)buffer, n);
     }
+    return false;
 }
-
 
 bool EUSBSerial::write(const char* buf, size_t size) {
     if (!pc.connected())

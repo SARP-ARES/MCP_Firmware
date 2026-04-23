@@ -47,7 +47,6 @@ private:
     bool _success;
     USBSerial pc;
 
-    void _printf();
     void _write();
 };
 
