@@ -49,7 +49,6 @@ Thread i2cThread;
 // 32 bytes for 4 floats (motor positions and powers)
 char i2c_tx_buf[32];
 
-Mutex mutex;
 std::atomic<float> cmd_ctrl{DEFAULT_CTRL_VALUE};
 
 struct {
@@ -65,17 +64,18 @@ bool is_nan_safe(float f) {
     return (i & 0x7F800000) == 0x7F800000 && (i & 0x007FFFFF) != 0;
 }
 
+/** @brief Updates the current motor packet with new data */
 void update_motorPacket(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
-    ScopedLock<Mutex> lock(mutex);
     motorPacket.leftDegrees = leftDegrees;
     motorPacket.rightDegrees = rightDegrees;
     motorPacket.leftPower = leftPower;
     motorPacket.rightPower = rightPower;
 }
 
+// Enables slave node functionality over i2c
 I2CSlave slave(SDA_PIN, SCL_PIN);
 
-// I2C handler thread takes motor control inputs and upon request sends motor status packet
+/** @brief I2C interrupt handler, updates commanded deflection on write request, sends motor data on read request */
 void i2c_handler(void) {
     slave.address(MCPS_ADDR); 
 
@@ -107,7 +107,7 @@ void i2c_handler(void) {
 }
 
 
-// LED debug indicator method
+/** @brief Lights up hte onboard led for a deflection > 0 */
 void led_if_deflection_pos(float ctrl) {
     if (ctrl > 0) led.write(1);
     else          led.write(0);

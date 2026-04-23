@@ -12,6 +12,8 @@ void Motor::updateGlobals() {
 
 }
 
+// -- State Call Backs --
+
 void Motor::aRiseCallback() {
     aUp = true;
 
@@ -41,7 +43,9 @@ void Motor::bFallCallback() {
     else        encoderCounter--;
 }
 
+// ----------------------------
 
+// Constructs the motor object and instantiates the pid controller. 
 Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
             PinName MOTOR_4, PID* pid) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
             motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4), pid(pid) {
@@ -68,6 +72,7 @@ float Motor::getPosition() {
     return static_cast<float>(getDegrees()) / 360.0 * PI * spoolDiameter;
 }
 
+// Delivers power to the motors 
 void Motor::motorPower() {
     if (power > 0) {
         if (!powerPositive) {
@@ -118,6 +123,8 @@ long Motor::getDisplacement() {
     return angle * spoolDiameter * PI / 360;
 }
 
+// Depreciated method to displace the motor to a givne location
+// DO NOT USE 
 float Motor::lineTo(float retraction, int delay) {
         float inches = MAX_DEFLECTION * retraction;
         float displacement = getDisplacement();
