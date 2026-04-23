@@ -6,6 +6,7 @@
 #include "PID.h"
 #include "Distributor.h"
 #include <atomic>
+#include "PinDef.h"
 
 #define MCPS_ADDR 0x02 << 1
 #define LOOP_PERIOD_MS 20
