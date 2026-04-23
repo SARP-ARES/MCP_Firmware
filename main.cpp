@@ -51,12 +51,17 @@ char i2c_tx_buf[32];
 
 std::atomic<float> cmd_ctrl{DEFAULT_CTRL_VALUE};
 
-struct {
+struct MotorPacket {
     float leftDegrees;
     float rightDegrees;
     float leftPower;
     float rightPower;
-} motorPacket;
+};
+
+// Double Buffering 
+struct MotorPacket packet_1, packet_2;
+std::atomic<MotorPacket*> read_from_ptr{&packet_1};
+MotorPacket* write_to_ptr = &packet_2;
 
 bool is_nan_safe(float f) {
     uint32_t i;
@@ -65,11 +70,11 @@ bool is_nan_safe(float f) {
 }
 
 /** @brief Updates the current motor packet with new data */
-void update_motorPacket(float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
-    motorPacket.leftDegrees = leftDegrees;
-    motorPacket.rightDegrees = rightDegrees;
-    motorPacket.leftPower = leftPower;
-    motorPacket.rightPower = rightPower;
+void update_motorPacket(MotorPacket* motorPtr, float leftDegrees, float rightDegrees, float leftPower, float rightPower) {
+    motorPtr->leftDegrees = leftDegrees;
+    motorPtr->rightDegrees = rightDegrees;
+    motorPtr->leftPower = leftPower;
+    motorPtr->rightPower = rightPower;
 }
 
 // Enables slave node functionality over i2c
@@ -96,8 +101,12 @@ void i2c_handler(void) {
             }
 
             case I2CSlave::ReadAddressed: {
-                memcpy(i2c_tx_buf, &motorPacket, sizeof(motorPacket));
-                slave.write(i2c_tx_buf, sizeof(motorPacket));
+                
+                // Pull fresh data from DB 
+                MotorPacket* pkt = read_from_ptr.load();
+                memcpy(i2c_tx_buf, pkt, sizeof(MotorPacket));
+
+                slave.write(i2c_tx_buf, sizeof(MotorPacket));
                 break;
             }
 
@@ -139,11 +148,16 @@ int main() {
 
         // UPDATE FLASH DATA
         update_motorPacket(
+            write_to_ptr,
             m1.getPosition(), // Left Motor
             m2.getPosition(), // Right Motor
             extensions.first,         
             extensions.second
         );
+
+        // Update the double buffer
+        MotorPacket* old_read = read_from_ptr.exchange(write_to_ptr); // Swap the Pointers
+        write_to_ptr = old_read; // Set write to be the old ptr 
 
         // Event Scheduling
         if(t.read_ms() < LOOP_PERIOD_MS) ThisThread::sleep_for(LOOP_PERIOD_MS - t.read_ms());
