@@ -85,7 +85,6 @@ void MotorCOTS::direction(int direction) {
 }
 
 // Set motor power
-// Takes:   float power (0 to 1 for forward, 0 to -1 for backward)
 void MotorCOTS::motorPower() {
     if (power > 0) {
         direction(1);

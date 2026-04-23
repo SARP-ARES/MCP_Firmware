@@ -34,7 +34,7 @@ class MotorCOTS {
         float angle;
         float rotations;
         bool powerPositive;
-        float power;
+        float power = 0;
 
         void aRiseCallback();
         void bRiseCallback();

@@ -36,9 +36,9 @@ class Motor {
         float angle;
         float rotations;
         bool powerPositive;
+        float power = 0; 
 
-        PID motorPID;
-
+        PID* pid;
 
         void aRiseCallback();
         void bRiseCallback();
@@ -50,9 +50,9 @@ class Motor {
         void updateGlobals();
 
         Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
-                PinName MOTOR_4, const PID& pidObject);
+                PinName MOTOR_4, PID* pid);
         
-        void motorPower(float power);
+        void motorPower();
 
         void spinDegrees(int degrees);
 
@@ -61,6 +61,10 @@ class Motor {
         long getDisplacement();
 
         float lineTo(float retraction, int delay);
+
+        float toPosition(float pullPercent, int dt);
+
+        float getPosition();
         
 };
 

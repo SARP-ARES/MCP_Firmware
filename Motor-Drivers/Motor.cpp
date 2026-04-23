@@ -43,8 +43,8 @@ void Motor::bFallCallback() {
 
 
 Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
-            PinName MOTOR_4, const PID& pidObject) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
-            motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4), motorPID(pidObject) {
+            PinName MOTOR_4, PID* pid) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 
+            motorPin3(MOTOR_3), motorPin2(MOTOR_2), motorPin4(MOTOR_4), pid(pid) {
 
     // Init pins and set pin modes for encoders
     encoderA.mode(PullDown);
@@ -63,8 +63,12 @@ Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, Pin
 
 }
 
-void Motor::motorPower(float power) {
-    printf("motor power\n");
+// Returns motor linear position in inches
+float Motor::getPosition() {
+    return static_cast<float>(getDegrees()) / 360.0 * PI * spoolDiameter;
+}
+
+void Motor::motorPower() {
     if (power > 0) {
         if (!powerPositive) {
                     motorPin1.write(0);
@@ -101,37 +105,6 @@ void Motor::motorPower(float power) {
     }
 }
 
-// Takes an integer for degrees to spin from current position
-// This is print hammering, do not want this in final system
-void Motor::spinDegrees(int degrees) {
-    printf("spin degrees\n");
-    int initial = getDegrees();
-    if (degrees > 0) {
-        printf("positive\n");
-        motorPower(1);
-        printf("on\n");
-        while (angle < (initial + degrees)) {
-            printf("a: %d\n", (int)encoderA.read());
-            printf("b: %d\n", (int)encoderB.read());
-            ThisThread::sleep_for(10ms);
-            updateGlobals();
-        }
-        printf("off\n");
-        motorPower(0);
-    } else if (degrees < 0) {
-        printf("negative motor power\n");
-        motorPower(-1);
-        ThisThread::sleep_for(100ms);
-        while (angle > (initial + degrees)) {
-            ThisThread::sleep_for(10ms);
-            updateGlobals();
-        }
-        printf("off");
-        motorPower(0);
-    }
-}
-
-
 
 int Motor::getDegrees() {
     updateGlobals();
@@ -148,7 +121,26 @@ long Motor::getDisplacement() {
 float Motor::lineTo(float retraction, int delay) {
         float inches = MAX_DEFLECTION * retraction;
         float displacement = getDisplacement();
-        float power = motorPID.compute(displacement, inches, delay);
-        motorPower(power);
-        return(power);
+        float power = pid->compute(displacement, inches, delay);
+        motorPower();
+        return power;
+}
+
+/** 
+ * @brief Sends the motor to a given position 
+ * @param pullPercent Percent of line to pull in
+ * @param dt Time differential for PID controller
+ */
+float Motor::toPosition(float pullPercent, int dt) {
+    
+    float currPos = getPosition();
+    float targetPos = pullPercent*MAX_DEFLECTION;
+
+    power = -pid->compute(currPos, targetPos, dt);
+
+    if (currPos-targetPos < 0.5 && currPos-targetPos > -0.5) power = 0.0f;
+    
+    motorPower(); 
+    
+    return power; 
 }

@@ -26,13 +26,13 @@ PID pid(Kp, Ki, Kd, DEADZONE);
 Motor m1(
     PIN_A_M1, PIN_B_M1, 
     MOTOR_1_M1, MOTOR_2_M1, MOTOR_3_M1, MOTOR_4_M1, 
-    pid
+    &pid
 );
 
 Motor m2(
     PIN_A_M2, PIN_B_M2,
     MOTOR_1_M2, MOTOR_2_M2, MOTOR_3_M2, MOTOR_4_M2,
-    pid
+    &pid
 );
 
 Distributor dstb;
