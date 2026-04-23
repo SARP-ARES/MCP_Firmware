@@ -26,7 +26,6 @@ float PID::compute(float curr, float target, float dt) {
         positiveLast = !positiveLast;
     }
 
-
     float P = -Kp * error;
     float I = -Ki * integralError;
     float D = -Kd * (error - errorLast) / dt;

@@ -15,11 +15,6 @@ DigitalOut led(LED_PIN);
 // Serial
 EUSBSerial pc;
 
-const float Kp  = 1.2;
-const float Ki  = 0;
-const float Kd  = 0.1;
-const float DEADZONE  = 0.05;
-
 // Initializing the PID controller for both motors
 PID pid(Kp, Ki, Kd, DEADZONE);
 
@@ -36,8 +31,6 @@ Motor m2(
 );
 
 Distributor dstb;
-
-const float DEFAULT_CTRL_VALUE = 999.0f;
 
 // Relative extensions for both motors
 // 0 = retracted, 1 = fully exteded
@@ -65,8 +58,10 @@ MotorPacket* write_to_ptr = &packet_2;
 
 bool is_nan_safe(float f) {
     uint32_t i;
+    uint32_t exp_mask = 0x7F800000;
+    uint32_t mantissa_mask = 0x007FFFFF;
     memcpy(&i, &f, sizeof(i));
-    return (i & 0x7F800000) == 0x7F800000 && (i & 0x007FFFFF) != 0;
+    return (i & exp_mask) == exp_mask && (i & mantissa_mask) != 0;
 }
 
 /** @brief Updates the current motor packet with new data */
@@ -140,8 +135,10 @@ int main() {
         // check for the default value so that motors don't spin until a command is received from the flight computer
         if (ctrl != DEFAULT_CTRL_VALUE) {
             extensions = dstb.getMotorOutputs(ctrl);
-            float lpower = m1.toPosition(extensions.first, 10);  // Left cmd
-            float rpower = m2.toPosition(extensions.second, 10); // Right cmd
+
+            // The second paramter is dt in ms 
+            float lpower = m1.toPosition(extensions.first, LOOP_PERIOD_MS);  // Left cmd
+            float rpower = m2.toPosition(extensions.second, LOOP_PERIOD_MS); // Right cmd
         }
 
         led_if_deflection_pos(ctrl);
