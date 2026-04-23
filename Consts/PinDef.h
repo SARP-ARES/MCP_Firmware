@@ -28,13 +28,13 @@ const PinName COTS_PINB_M2 = PC_15;
 const PinName PIN_A_M1 = PB_3; 
 const PinName PIN_B_M1 = PB_5;
 const PinName MOTOR_1_M1 = PA_11;
-const PinName MOTOR_2_M1 = PA_12;
+const PinName MOTOR_2_M1 = PA_7;
 const PinName MOTOR_3_M1 = PB_10;
 const PinName MOTOR_4_M1 = PA_9;
 
 // Motor 2
 const PinName PIN_A_M2 = PA_6; 
-const PinName PIN_B_M2 = PA_5;
+const PinName PIN_B_M2 = PA_1;
 const PinName MOTOR_1_M2 = PB_14;
 const PinName MOTOR_2_M2 = PB_15;
 const PinName MOTOR_3_M2 = PB_13;
