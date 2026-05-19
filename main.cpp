@@ -110,13 +110,11 @@ void i2c_handler(void) {
     }
 }
 
-
 /** @brief Lights up hte onboard led for a deflection > 0 */
 void led_if_deflection_pos(float ctrl) {
     if (ctrl > 0) led.write(1);
     else          led.write(0);
 }
-
 
 int main() {
 

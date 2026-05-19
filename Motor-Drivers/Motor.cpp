@@ -45,6 +45,8 @@ void Motor::bFallCallback() {
 
 // ----------------------------
 
+// TODO:  Change MOTOR pins to be Q (MOSFETS), change PIN pins to be E (Encoders)
+
 // Constructs the motor object and instantiates the pid controller. 
 Motor::Motor(PinName PIN_A, PinName PIN_B, PinName MOTOR_1, PinName MOTOR_2, PinName MOTOR_3,
             PinName MOTOR_4, PID* pid) : encoderA(PIN_A), encoderB(PIN_B), motorPin1(MOTOR_1), 

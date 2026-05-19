@@ -27,7 +27,7 @@ const PinName COTS_PINB_M2 = PC_15;
 // Motor 1
 const PinName PIN_A_M1 = PB_3; 
 const PinName PIN_B_M1 = PB_5;
-const PinName MOTOR_1_M1 = PA_11;
+const PinName MOTOR_1_M1 = PA_5;
 const PinName MOTOR_2_M1 = PA_7;
 const PinName MOTOR_3_M1 = PB_10;
 const PinName MOTOR_4_M1 = PA_9;
@@ -42,4 +42,4 @@ const PinName MOTOR_4_M2 = PA_8;
 
 // -- I2C pins --
 const PinName SDA_PIN = PB_7; 
-const PinName SCL_PIN = PB_6;
+const PinName SCL_PIN = PB_8;
